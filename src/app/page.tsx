@@ -1,69 +1,57 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <section className="hero">
+        <p className="eyebrow">Educational activity builder</p>
+
+        <h1>Create phoneme-based learning activities</h1>
+
+        <p className="hero__description">
+          Build, preview and export Wordle-style and word-search activities
+          using phoneme symbols.
+        </p>
+
+        <div className="hero__actions">
+          <Link className="button button--primary" href="/wordle">
+            Build a Wordle activity
+          </Link>
+
+          <Link className="button button--secondary" href="/word-search">
+            Build a word search
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section aria-labelledby="activity-heading" className="section">
+        <div className="section-heading">
+          <p className="eyebrow">Activity options</p>
+          <h2 id="activity-heading">Choose an activity</h2>
         </div>
-      </main>
-    </div>
+
+        <div className="activity-grid">
+          <article className="activity-card">
+            <p className="activity-card__number">01</p>
+            <h3>Wordle Builder</h3>
+            <p>
+              Create a phoneme-based guessing activity using a selected word
+              and a configurable game grid.
+            </p>
+            <Link href="/wordle">Open Wordle Builder</Link>
+          </article>
+
+          <article className="activity-card">
+            <p className="activity-card__number">02</p>
+            <h3>Word Search Builder</h3>
+            <p>
+              Create a phoneme-based word-search puzzle using a selected list
+              of words and grid dimensions.
+            </p>
+            <Link href="/word-search">Open Word Search Builder</Link>
+          </article>
+        </div>
+      </section>
+    </main>
   );
 }
