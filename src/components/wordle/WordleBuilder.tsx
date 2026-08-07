@@ -131,119 +131,123 @@ export default function WordleBuilder() {
           <h2 id="wordle-preview-heading">Wordle activity</h2>
         </div>
 
-        <div
-          aria-label={`${phonemeCount}-phoneme Wordle grid`}
-          className="wordle-grid"
-        >
-          {Array.from({ length: GRID_ROW_COUNT }, (_, rowIndex) => (
+        <div className="wordle-workspace">
+          <div className="wordle-board">
             <div
-              className="wordle-grid__row"
-              key={`row-${rowIndex}`}
-              style={{
-                gridTemplateColumns: `repeat(${phonemeCount}, minmax(0, 1fr))`,
-              }}
+              aria-label={`${phonemeCount}-phoneme Wordle grid`}
+              className="wordle-grid"
             >
-              {Array.from({ length: phonemeCount }, (_, columnIndex) => {
-                const answerPhoneme =
-                  rowIndex === 0
-                    ? (selectedWord.phonemes[columnIndex] ?? "")
-                    : "";
+              {Array.from({ length: GRID_ROW_COUNT }, (_, rowIndex) => (
+                <div
+                  className="wordle-grid__row"
+                  key={`row-${rowIndex}`}
+                  style={{
+                    gridTemplateColumns: `repeat(${phonemeCount}, minmax(0, 1fr))`,
+                  }}
+                >
+                  {Array.from({ length: phonemeCount }, (_, columnIndex) => {
+                    const answerPhoneme =
+                      rowIndex === 0
+                        ? (selectedWord.phonemes[columnIndex] ?? "")
+                        : "";
 
-                const enteredPhoneme =
-                  rowIndex === 1
-                    ? (previewGuess[columnIndex] ?? "")
-                    : "";
+                    const enteredPhoneme =
+                      rowIndex === 1
+                        ? (previewGuess[columnIndex] ?? "")
+                        : "";
 
-                const displayedPhoneme = answerPhoneme || enteredPhoneme;
+                    const displayedPhoneme = answerPhoneme || enteredPhoneme;
 
-                const cellState = answerPhoneme
-                  ? "answer"
-                  : enteredPhoneme
-                    ? "entry"
-                    : "empty";
+                    const cellState = answerPhoneme
+                      ? "answer"
+                      : enteredPhoneme
+                        ? "entry"
+                        : "empty";
 
-                return (
-                  <div
-                    aria-label={
-                      displayedPhoneme
-                        ? `Row ${rowIndex + 1}, cell ${columnIndex + 1}: ${displayedPhoneme}`
-                        : `Row ${rowIndex + 1}, cell ${columnIndex + 1}: empty`
-                    }
-                    className={`wordle-cell wordle-cell--${cellState}`}
-                    key={`cell-${rowIndex}-${columnIndex}`}
-                  >
-                    {displayedPhoneme}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-
-        <div className="wordle-preview-key">
-          <p>
-            <strong>Row 1:</strong> answer preview
-          </p>
-          <p>
-            <strong>Row 2:</strong> keyboard entry preview
-          </p>
-        </div>
-
-        <section
-          aria-labelledby="phoneme-keyboard-heading"
-          className="phoneme-keyboard"
-        >
-          <div className="phoneme-keyboard__heading">
-            <div>
-              <h3 id="phoneme-keyboard-heading">Phoneme keyboard</h3>
-              <p>Select symbols to fill the second grid row.</p>
+                    return (
+                      <div
+                        aria-label={
+                          displayedPhoneme
+                            ? `Row ${rowIndex + 1}, cell ${columnIndex + 1}: ${displayedPhoneme}`
+                            : `Row ${rowIndex + 1}, cell ${columnIndex + 1}: empty`
+                        }
+                        className={`wordle-cell wordle-cell--${cellState}`}
+                        key={`cell-${rowIndex}-${columnIndex}`}
+                      >
+                        {displayedPhoneme}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
 
-            <div className="phoneme-keyboard__actions">
-              <button
-                disabled={previewGuess.length === 0}
-                onClick={handleDeletePhoneme}
-                type="button"
-              >
-                Delete
-              </button>
-
-              <button
-                disabled={previewGuess.length === 0}
-                onClick={handleClearGuess}
-                type="button"
-              >
-                Clear
-              </button>
+            <div className="wordle-preview-key">
+              <p>
+                <strong>Row 1:</strong> answer preview
+              </p>
+              <p>
+                <strong>Row 2:</strong> keyboard entry preview
+              </p>
             </div>
           </div>
 
-          <div className="phoneme-keyboard__rows">
-            {PHONEME_KEYBOARD_ROWS.map((row, rowIndex) => (
-              <div
-                className="phoneme-keyboard__row"
-                key={`keyboard-row-${rowIndex}`}
-              >
-                {row.map((sourcePhoneme) => {
-                  const phoneme = normalisePhoneme(sourcePhoneme);
-
-                  return (
-                    <button
-                      aria-label={`Enter phoneme ${phoneme}`}
-                      className="phoneme-key"
-                      disabled={previewGuess.length >= phonemeCount}
-                      key={`${rowIndex}-${phoneme}`}
-                      onClick={() => handlePhonemeSelection(phoneme)}
-                      type="button"
-                    >
-                      {phoneme}
-                    </button>
-                  );
-                })}
+          <section
+            aria-labelledby="phoneme-keyboard-heading"
+            className="phoneme-keyboard"
+          >
+            <div className="phoneme-keyboard__heading">
+              <div>
+                <h3 id="phoneme-keyboard-heading">Phoneme keyboard</h3>
+                <p>Select symbols to fill the second grid row.</p>
               </div>
-            ))}
-          </div>
-        </section>
+
+              <div className="phoneme-keyboard__actions">
+                <button
+                  disabled={previewGuess.length === 0}
+                  onClick={handleDeletePhoneme}
+                  type="button"
+                >
+                  Delete
+                </button>
+
+                <button
+                  disabled={previewGuess.length === 0}
+                  onClick={handleClearGuess}
+                  type="button"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <div className="phoneme-keyboard__rows">
+              {PHONEME_KEYBOARD_ROWS.map((row, rowIndex) => (
+                <div
+                  className="phoneme-keyboard__row"
+                  key={`keyboard-row-${rowIndex}`}
+                >
+                  {row.map((sourcePhoneme) => {
+                    const phoneme = normalisePhoneme(sourcePhoneme);
+
+                    return (
+                      <button
+                        aria-label={`Enter phoneme ${phoneme}`}
+                        className="phoneme-key"
+                        disabled={previewGuess.length >= phonemeCount}
+                        key={`${rowIndex}-${phoneme}`}
+                        onClick={() => handlePhonemeSelection(phoneme)}
+                        type="button"
+                      >
+                        {phoneme}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
       </section>
     </section>
   );
