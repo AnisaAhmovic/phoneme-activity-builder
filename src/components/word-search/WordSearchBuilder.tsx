@@ -59,6 +59,39 @@ function getSelectionPath(
   }));
 }
 
+function pathsMatch(
+  first: readonly GridCoordinate[],
+  second: readonly GridCoordinate[],
+): boolean {
+  if (first.length !== second.length) {
+    return false;
+  }
+
+  const forwardMatch = first.every((coordinate, index) => {
+    const comparisonCoordinate = second[index];
+
+    return (
+      comparisonCoordinate !== undefined &&
+      coordinate.row === comparisonCoordinate.row &&
+      coordinate.column === comparisonCoordinate.column
+    );
+  });
+
+  if (forwardMatch) {
+    return true;
+  }
+
+  return first.every((coordinate, index) => {
+    const reverseCoordinate = second[second.length - 1 - index];
+
+    return (
+      reverseCoordinate !== undefined &&
+      coordinate.row === reverseCoordinate.row &&
+      coordinate.column === reverseCoordinate.column
+    );
+  });
+}
+
 function normaliseGridSize(value: number): number {
   return Math.min(MAX_GRID_SIZE, Math.max(MIN_GRID_SIZE, Math.floor(value)));
 }
@@ -70,7 +103,10 @@ function buildPuzzle(
   columns: number,
   seed: number,
 ): GeneratedWordSearch {
-  const words = selectedWords.filter((word) => selectedWordIds.includes(word.id));
+  const words = selectedWords.filter((word) =>
+    selectedWordIds.includes(word.id),
+  );
+
   return generateWordSearch(words, rows, columns, seed);
 }
 
@@ -78,44 +114,53 @@ export default function WordSearchBuilder() {
   const [phonemeCount, setPhonemeCount] = useState<PhonemeCount>(
     DEFAULT_PHONEME_COUNT,
   );
+
   const availableWords = getWordsByPhonemeCount(phonemeCount);
+
   const [selectedWordIds, setSelectedWordIds] = useState<string[]>(() =>
     DEFAULT_WORD_IDS.filter((id) =>
-      getWordsByPhonemeCount(DEFAULT_PHONEME_COUNT).some((word) => word.id === id),
+      getWordsByPhonemeCount(DEFAULT_PHONEME_COUNT).some(
+        (word) => word.id === id,
+      ),
     ),
   );
+
   const [rows, setRows] = useState(DEFAULT_ROWS);
   const [columns, setColumns] = useState(DEFAULT_COLUMNS);
   const [seed, setSeed] = useState(1);
+
   const [puzzle, setPuzzle] = useState<GeneratedWordSearch>(() =>
     buildPuzzle(
       getWordsByPhonemeCount(DEFAULT_PHONEME_COUNT),
       DEFAULT_WORD_IDS.filter((id) =>
-        getWordsByPhonemeCount(DEFAULT_PHONEME_COUNT).some((word) => word.id === id),
+        getWordsByPhonemeCount(DEFAULT_PHONEME_COUNT).some(
+          (word) => word.id === id,
+        ),
       ),
       DEFAULT_ROWS,
       DEFAULT_COLUMNS,
       1,
     ),
   );
+
   const [showAnswers, setShowAnswers] = useState(false);
   const [dragStart, setDragStart] = useState<GridCoordinate | null>(null);
   const [selectedPath, setSelectedPath] = useState<GridCoordinate[]>([]);
+
   const [foundSelections, setFoundSelections] = useState<
     Record<string, readonly GridCoordinate[]>
   >({});
 
-  const selectedWords = availableWords.filter((word) =>
-    selectedWordIds.includes(word.id),
-  );
   const foundWordIds = useMemo(
     () => new Set(Object.keys(foundSelections)),
     [foundSelections],
   );
+
   const selectedCellKeys = useMemo(
     () => new Set(selectedPath.map(coordinateKey)),
     [selectedPath],
   );
+
   const foundCellKeys = useMemo(
     () =>
       new Set(
@@ -125,10 +170,13 @@ export default function WordSearchBuilder() {
       ),
     [foundSelections],
   );
+
   const answerCellKeys = useMemo(
     () =>
       new Set(
-        puzzle.entries.flatMap((entry) => entry.coordinates.map(coordinateKey)),
+        puzzle.entries.flatMap((entry) =>
+          entry.coordinates.map(coordinateKey),
+        ),
       ),
     [puzzle.entries],
   );
@@ -148,6 +196,7 @@ export default function WordSearchBuilder() {
     const nextIds = nextWords
       .slice(0, DEFAULT_WORD_LIMIT)
       .map((word) => word.id);
+
     const nextSeed = seed + 1;
 
     setPhonemeCount(nextCount);
@@ -174,8 +223,17 @@ export default function WordSearchBuilder() {
 
   function handleGeneratePuzzle(): void {
     const nextSeed = seed + 1;
+
     setSeed(nextSeed);
-    setPuzzle(buildPuzzle(availableWords, selectedWordIds, rows, columns, nextSeed));
+    setPuzzle(
+      buildPuzzle(
+        availableWords,
+        selectedWordIds,
+        rows,
+        columns,
+        nextSeed,
+      ),
+    );
     resetInteractionState();
   }
 
@@ -184,24 +242,16 @@ export default function WordSearchBuilder() {
       return;
     }
 
-    const selectedPhonemes = path.map(
-      ({ row, column }) => puzzle.grid[row]?.[column] ?? "",
+    const matchedEntry = puzzle.entries.find(
+      ({ word, coordinates }) =>
+        !foundWordIds.has(word.id) &&
+        pathsMatch(path, coordinates),
     );
-    const forwards = selectedPhonemes.join("\u0000");
-    const backwards = [...selectedPhonemes].reverse().join("\u0000");
-    const matchedWord = selectedWords.find((word) => {
-      if (foundWordIds.has(word.id)) {
-        return false;
-      }
 
-      const target = word.phonemes.join("\u0000");
-      return target === forwards || target === backwards;
-    });
-
-    if (matchedWord) {
+    if (matchedEntry) {
       setFoundSelections((current) => ({
         ...current,
-        [matchedWord.id]: [...path],
+        [matchedEntry.word.id]: [...matchedEntry.coordinates],
       }));
     }
   }
@@ -238,7 +288,10 @@ export default function WordSearchBuilder() {
   }
 
   return (
-    <section aria-label="Word Search activity builder" className="word-search-builder">
+    <section
+      aria-label="Word Search activity builder"
+      className="word-search-builder"
+    >
       <section className="word-search-builder__controls">
         <div className="section-heading">
           <p className="eyebrow">Configuration</p>
@@ -246,7 +299,10 @@ export default function WordSearchBuilder() {
         </div>
 
         <div className="form-field">
-          <label htmlFor="word-search-phoneme-count">Number of phonemes</label>
+          <label htmlFor="word-search-phoneme-count">
+            Number of phonemes
+          </label>
+
           <select
             id="word-search-phoneme-count"
             onChange={handlePhonemeCountChange}
@@ -263,6 +319,7 @@ export default function WordSearchBuilder() {
         <div className="word-search-builder__dimensions">
           <div className="form-field">
             <label htmlFor="word-search-rows">Rows</label>
+
             <input
               id="word-search-rows"
               max={MAX_GRID_SIZE}
@@ -274,8 +331,10 @@ export default function WordSearchBuilder() {
               value={rows}
             />
           </div>
+
           <div className="form-field">
             <label htmlFor="word-search-columns">Columns</label>
+
             <input
               id="word-search-columns"
               max={MAX_GRID_SIZE}
@@ -291,7 +350,11 @@ export default function WordSearchBuilder() {
 
         <fieldset className="word-search-builder__word-options">
           <legend>Select words</legend>
-          <p className="form-help">Select words to include in the generated puzzle.</p>
+
+          <p className="form-help">
+            Select words to include in the generated puzzle.
+          </p>
+
           <div className="word-search-builder__word-checkboxes">
             {availableWords.map((word) => (
               <label key={word.id}>
@@ -300,6 +363,7 @@ export default function WordSearchBuilder() {
                   onChange={() => handleWordToggle(word.id)}
                   type="checkbox"
                 />
+
                 <span>{word.word}</span>
                 <small>{word.phonemes.join(" · ")}</small>
               </label>
@@ -324,8 +388,11 @@ export default function WordSearchBuilder() {
         <div className="word-search-builder__preview-heading">
           <div className="section-heading">
             <p className="eyebrow">Live preview</p>
-            <h2 id="word-search-preview-heading">Phoneme word search</h2>
+            <h2 id="word-search-preview-heading">
+              Phoneme word search
+            </h2>
           </div>
+
           <button
             className="button button--secondary"
             onClick={() => setShowAnswers((current) => !current)}
@@ -336,8 +403,12 @@ export default function WordSearchBuilder() {
         </div>
 
         {puzzle.unplacedWordIds.length > 0 ? (
-          <p className="word-search-builder__warning" role="status">
-            Some selected words could not be placed. Increase the grid size and generate again.
+          <p
+            className="word-search-builder__warning"
+            role="status"
+          >
+            Some selected words could not be placed. Increase the
+            grid size and generate again.
           </p>
         ) : null}
 
@@ -349,16 +420,24 @@ export default function WordSearchBuilder() {
           onPointerUp={finishSelection}
           role="grid"
           style={{
-            gridTemplateColumns: `repeat(${puzzle.grid[0]?.length ?? columns}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(${
+              puzzle.grid[0]?.length ?? columns
+            }, minmax(0, 1fr))`,
           }}
         >
           {puzzle.grid.flatMap((row, rowIndex) =>
             row.map((phoneme, columnIndex) => {
-              const coordinate = { row: rowIndex, column: columnIndex };
+              const coordinate = {
+                row: rowIndex,
+                column: columnIndex,
+              };
+
               const key = coordinateKey(coordinate);
               const isSelected = selectedCellKeys.has(key);
               const isFound = foundCellKeys.has(key);
-              const isAnswer = showAnswers && answerCellKeys.has(key);
+              const isAnswer =
+                showAnswers && answerCellKeys.has(key);
+
               const stateClasses = [
                 isAnswer ? "word-search-cell--answer" : "",
                 isSelected ? "word-search-cell--selected" : "",
@@ -369,13 +448,17 @@ export default function WordSearchBuilder() {
 
               return (
                 <button
-                  aria-label={`Row ${rowIndex + 1}, column ${columnIndex + 1}: ${phoneme}`}
+                  aria-label={`Row ${rowIndex + 1}, column ${
+                    columnIndex + 1
+                  }: ${phoneme}`}
                   className={`word-search-cell ${stateClasses}`.trim()}
                   key={key}
-                  onPointerDown={(event: ReactPointerEvent<HTMLButtonElement>) =>
-                    handlePointerDown(coordinate, event)
+                  onPointerDown={(
+                    event: ReactPointerEvent<HTMLButtonElement>,
+                  ) => handlePointerDown(coordinate, event)}
+                  onPointerEnter={() =>
+                    handlePointerEnter(coordinate)
                   }
-                  onPointerEnter={() => handlePointerEnter(coordinate)}
                   role="gridcell"
                   type="button"
                 >
@@ -386,17 +469,29 @@ export default function WordSearchBuilder() {
           )}
         </div>
 
-        <section aria-labelledby="word-search-word-list-heading" className="word-search-word-list">
+        <section
+          aria-labelledby="word-search-word-list-heading"
+          className="word-search-word-list"
+        >
           <div className="word-search-word-list__heading">
-            <h3 id="word-search-word-list-heading">Word list</h3>
-            <p>{foundWordIds.size} of {puzzle.entries.length} found</p>
+            <h3 id="word-search-word-list-heading">
+              Word list
+            </h3>
+
+            <p>
+              {foundWordIds.size} of {puzzle.entries.length} found
+            </p>
           </div>
+
           <div className="word-search-word-list__items">
             {puzzle.entries.map(({ word }) => {
               const isFound = foundWordIds.has(word.id);
+
               return (
                 <div
-                  className={`word-search-word${isFound ? " word-search-word--found" : ""}`}
+                  className={`word-search-word${
+                    isFound ? " word-search-word--found" : ""
+                  }`}
                   key={word.id}
                 >
                   <strong>{word.word}</strong>
