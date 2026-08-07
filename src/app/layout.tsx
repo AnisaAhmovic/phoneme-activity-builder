@@ -3,8 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import PreferenceInitializer from "@/components/settings/PreferenceInitializer";
 
 import "./globals.css";
+import "./ui-polish.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +35,8 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <PreferenceInitializer />
+
         <div className="site-shell">
           <Header />
 
