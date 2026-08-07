@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { ChangeEvent, PointerEvent as ReactPointerEvent } from "react";
 
 import { getWordsByPhonemeCount } from "@/data/phonemeCorpus";
@@ -105,9 +105,8 @@ export default function WordSearchBuilder() {
     Record<string, readonly GridCoordinate[]>
   >({});
 
-  const selectedWords = useMemo(
-    () => availableWords.filter((word) => selectedWordIds.includes(word.id)),
-    [availableWords, selectedWordIds],
+  const selectedWords = availableWords.filter((word) =>
+    selectedWordIds.includes(word.id),
   );
   const foundWordIds = useMemo(
     () => new Set(Object.keys(foundSelections)),
@@ -180,37 +179,34 @@ export default function WordSearchBuilder() {
     resetInteractionState();
   }
 
-  const checkSelection = useCallback(
-    (path: readonly GridCoordinate[]): void => {
-      if (path.length === 0) {
-        return;
+  function checkSelection(path: readonly GridCoordinate[]): void {
+    if (path.length === 0) {
+      return;
+    }
+
+    const selectedPhonemes = path.map(
+      ({ row, column }) => puzzle.grid[row]?.[column] ?? "",
+    );
+    const forwards = selectedPhonemes.join("\u0000");
+    const backwards = [...selectedPhonemes].reverse().join("\u0000");
+    const matchedWord = selectedWords.find((word) => {
+      if (foundWordIds.has(word.id)) {
+        return false;
       }
 
-      const selectedPhonemes = path.map(
-        ({ row, column }) => puzzle.grid[row]?.[column] ?? "",
-      );
-      const forwards = selectedPhonemes.join("\u0000");
-      const backwards = [...selectedPhonemes].reverse().join("\u0000");
-      const matchedWord = selectedWords.find((word) => {
-        if (foundWordIds.has(word.id)) {
-          return false;
-        }
+      const target = word.phonemes.join("\u0000");
+      return target === forwards || target === backwards;
+    });
 
-        const target = word.phonemes.join("\u0000");
-        return target === forwards || target === backwards;
-      });
+    if (matchedWord) {
+      setFoundSelections((current) => ({
+        ...current,
+        [matchedWord.id]: [...path],
+      }));
+    }
+  }
 
-      if (matchedWord) {
-        setFoundSelections((current) => ({
-          ...current,
-          [matchedWord.id]: [...path],
-        }));
-      }
-    },
-    [foundWordIds, puzzle.grid, selectedWords],
-  );
-
-  const finishSelection = useCallback((): void => {
+  function finishSelection(): void {
     if (!dragStart) {
       return;
     }
@@ -218,21 +214,7 @@ export default function WordSearchBuilder() {
     checkSelection(selectedPath);
     setDragStart(null);
     setSelectedPath([]);
-  }, [checkSelection, dragStart, selectedPath]);
-
-  useEffect(() => {
-    if (!dragStart) {
-      return undefined;
-    }
-
-    window.addEventListener("pointerup", finishSelection);
-    window.addEventListener("pointercancel", finishSelection);
-
-    return () => {
-      window.removeEventListener("pointerup", finishSelection);
-      window.removeEventListener("pointercancel", finishSelection);
-    };
-  }, [dragStart, finishSelection]);
+  }
 
   function handlePointerDown(
     coordinate: GridCoordinate,
@@ -362,6 +344,9 @@ export default function WordSearchBuilder() {
         <div
           aria-label="Interactive phoneme word-search grid"
           className="word-search-grid"
+          onPointerCancel={finishSelection}
+          onPointerLeave={finishSelection}
+          onPointerUp={finishSelection}
           role="grid"
           style={{
             gridTemplateColumns: `repeat(${puzzle.grid[0]?.length ?? columns}, minmax(0, 1fr))`,
