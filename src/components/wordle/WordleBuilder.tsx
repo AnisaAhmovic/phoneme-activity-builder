@@ -3,10 +3,12 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 
-import PrintButton from "@/components/export/PrintButton";
 import { getWordsByPhonemeCount } from "@/data/phonemeCorpus";
+import { getPhonemeHint } from "@/data/phonemeHints";
 import { PHONEME_KEYBOARD_ROWS } from "@/data/phonemeKeyboard";
 import type { PhonemeCount } from "@/types/phoneme";
+import { downloadHtmlFile } from "@/utils/downloadHtmlFile";
+import { generateWordleActivityHtml } from "@/utils/generateWordleActivityHtml";
 import { normalisePhoneme } from "@/utils/normalisePhoneme";
 
 const PHONEME_COUNTS: readonly PhonemeCount[] = [3, 4, 5];
@@ -22,6 +24,7 @@ export default function WordleBuilder() {
   );
   const [selectedWordId, setSelectedWordId] = useState(defaultWordId);
   const [previewGuess, setPreviewGuess] = useState<string[]>([]);
+  const [downloadStatus, setDownloadStatus] = useState("");
 
   const availableWords = getWordsByPhonemeCount(phonemeCount);
 
@@ -38,11 +41,13 @@ export default function WordleBuilder() {
     setPhonemeCount(nextCount);
     setSelectedWordId(nextWords[0]?.id ?? "");
     setPreviewGuess([]);
+    setDownloadStatus("");
   }
 
   function handleWordChange(event: ChangeEvent<HTMLSelectElement>): void {
     setSelectedWordId(event.target.value);
     setPreviewGuess([]);
+    setDownloadStatus("");
   }
 
   function handlePhonemeSelection(phoneme: string): void {
@@ -61,6 +66,16 @@ export default function WordleBuilder() {
 
   function handleClearGuess(): void {
     setPreviewGuess([]);
+  }
+
+  function handleGenerateHtml(): void {
+    if (!selectedWord) {
+      return;
+    }
+
+    const filename = `phoneme-wordle-${selectedWord.word}.html`;
+    downloadHtmlFile(filename, generateWordleActivityHtml(selectedWord));
+    setDownloadStatus(`${filename} downloaded and ready to open in a browser.`);
   }
 
   if (!selectedWord) {
@@ -121,40 +136,28 @@ export default function WordleBuilder() {
           <strong>{selectedWord.word}</strong>
           <span>{selectedWord.phonemes.join(" · ")}</span>
         </div>
+
+        <button
+          className="button button--primary activity-generate-button"
+          onClick={handleGenerateHtml}
+          type="button"
+        >
+          Generate HTML
+        </button>
+
+        <p aria-live="polite" className="activity-download-status">
+          {downloadStatus}
+        </p>
       </section>
 
       <section
         aria-labelledby="wordle-preview-heading"
         className="wordle-builder__preview"
       >
-        <div className="activity-preview-heading">
-          <div className="section-heading">
-            <p className="eyebrow">Live preview</p>
-            <h2 id="wordle-preview-heading">Wordle activity</h2>
-          </div>
-
-          <div className="export-actions">
-            <PrintButton
-              label="Print / Save as PDF"
-              mode="wordle-activity"
-            />
-          </div>
+        <div className="section-heading">
+          <p className="eyebrow">Live preview</p>
+          <h2 id="wordle-preview-heading">Wordle activity</h2>
         </div>
-
-        <header aria-hidden="true" className="print-sheet-header">
-          <p className="print-sheet-header__eyebrow">
-            Phoneme Activity Builder
-          </p>
-          <h1>Phoneme Wordle Activity</h1>
-          <div className="print-student-fields">
-            <span>Name:</span>
-            <span>Date:</span>
-          </div>
-          <p className="print-sheet-instructions">
-            Use the phoneme keyboard to record your guesses. Enter one phoneme
-            in each cell.
-          </p>
-        </header>
 
         <div className="wordle-workspace">
           <div className="wordle-board">
@@ -224,7 +227,10 @@ export default function WordleBuilder() {
             <div className="phoneme-keyboard__heading">
               <div>
                 <h3 id="phoneme-keyboard-heading">Phoneme keyboard</h3>
-                <p>Select symbols to fill the second grid row.</p>
+                <p>
+                  Select symbols to fill the second grid row. Hover over a
+                  phoneme for its English letter hint.
+                </p>
               </div>
 
               <div className="phoneme-keyboard__actions">
@@ -254,14 +260,16 @@ export default function WordleBuilder() {
                 >
                   {row.map((sourcePhoneme) => {
                     const phoneme = normalisePhoneme(sourcePhoneme);
+                    const hint = getPhonemeHint(phoneme);
 
                     return (
                       <button
-                        aria-label={`Enter phoneme ${phoneme}`}
+                        aria-label={`Enter phoneme ${phoneme}. ${hint}`}
                         className="phoneme-key"
                         disabled={previewGuess.length >= phonemeCount}
                         key={`${rowIndex}-${phoneme}`}
                         onClick={() => handlePhonemeSelection(phoneme)}
+                        title={`/${phoneme}/ — ${hint}`}
                         type="button"
                       >
                         {phoneme}
