@@ -7,7 +7,10 @@ export default function Header() {
     <header className="site-header">
       <div className="site-header__inner">
         <Link className="site-brand" href="/">
-          Phoneme Activity Builder
+          <span className="site-brand__assessment">
+            Frontend design and usability
+          </span>
+          <span className="site-brand__project">Phoneme Activity Builder</span>
         </Link>
 
         <Navigation />

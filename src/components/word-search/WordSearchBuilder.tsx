@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import type { ChangeEvent, PointerEvent as ReactPointerEvent } from "react";
 
 import { getWordsByPhonemeCount } from "@/data/phonemeCorpus";
+import { getPhonemeHint } from "@/data/phonemeHints";
 import type { PhonemeCount } from "@/types/phoneme";
+import { downloadHtmlFile } from "@/utils/downloadHtmlFile";
+import { generateWordSearchActivityHtml } from "@/utils/generateWordSearchActivityHtml";
 import {
   generateWordSearch,
   type GeneratedWordSearch,
@@ -15,17 +18,13 @@ const PHONEME_COUNTS: readonly PhonemeCount[] = [3, 4, 5];
 const DEFAULT_PHONEME_COUNT: PhonemeCount = 3;
 const DEFAULT_ROWS = 10;
 const DEFAULT_COLUMNS = 10;
-const DEFAULT_WORD_LIMIT = 9;
+const DEFAULT_WORD_LIMIT = 5;
 const DEFAULT_WORD_IDS = [
   "3-boot",
   "3-bait",
   "3-chin",
   "3-jam",
   "3-ring",
-  "3-log",
-  "3-fan",
-  "3-van",
-  "3-sun",
 ] as const;
 const MIN_GRID_SIZE = 6;
 const MAX_GRID_SIZE = 16;
@@ -145,7 +144,9 @@ export default function WordSearchBuilder() {
 
   const [showAnswers, setShowAnswers] = useState(false);
   const [dragStart, setDragStart] = useState<GridCoordinate | null>(null);
+  const [keyboardStart, setKeyboardStart] = useState<GridCoordinate | null>(null);
   const [selectedPath, setSelectedPath] = useState<GridCoordinate[]>([]);
+  const [downloadStatus, setDownloadStatus] = useState("");
 
   const [foundSelections, setFoundSelections] = useState<
     Record<string, readonly GridCoordinate[]>
@@ -184,8 +185,10 @@ export default function WordSearchBuilder() {
   function resetInteractionState(): void {
     setShowAnswers(false);
     setDragStart(null);
+    setKeyboardStart(null);
     setSelectedPath([]);
     setFoundSelections({});
+    setDownloadStatus("");
   }
 
   function handlePhonemeCountChange(
@@ -212,6 +215,7 @@ export default function WordSearchBuilder() {
         ? currentIds.filter((id) => id !== wordId)
         : [...currentIds, wordId],
     );
+    setDownloadStatus("");
   }
 
   function handleGridSizeChange(
@@ -219,6 +223,7 @@ export default function WordSearchBuilder() {
     event: ChangeEvent<HTMLInputElement>,
   ): void {
     setter(normaliseGridSize(Number(event.target.value)));
+    setDownloadStatus("");
   }
 
   function handleGeneratePuzzle(): void {
@@ -237,6 +242,12 @@ export default function WordSearchBuilder() {
     resetInteractionState();
   }
 
+  function handleGenerateHtml(): void {
+    const filename = "phoneme-word-search.html";
+    downloadHtmlFile(filename, generateWordSearchActivityHtml(puzzle));
+    setDownloadStatus(`${filename} downloaded and ready to open in a browser.`);
+  }
+
   function checkSelection(path: readonly GridCoordinate[]): void {
     if (path.length === 0) {
       return;
@@ -244,8 +255,7 @@ export default function WordSearchBuilder() {
 
     const matchedEntry = puzzle.entries.find(
       ({ word, coordinates }) =>
-        !foundWordIds.has(word.id) &&
-        pathsMatch(path, coordinates),
+        !foundWordIds.has(word.id) && pathsMatch(path, coordinates),
     );
 
     if (matchedEntry) {
@@ -275,6 +285,7 @@ export default function WordSearchBuilder() {
     }
 
     event.preventDefault();
+    setKeyboardStart(null);
     setDragStart(coordinate);
     setSelectedPath([coordinate]);
   }
@@ -285,6 +296,22 @@ export default function WordSearchBuilder() {
     }
 
     setSelectedPath(getSelectionPath(dragStart, coordinate));
+  }
+
+  function handleCellClick(coordinate: GridCoordinate): void {
+    if (dragStart) {
+      return;
+    }
+
+    if (!keyboardStart) {
+      setKeyboardStart(coordinate);
+      setSelectedPath([coordinate]);
+      return;
+    }
+
+    checkSelection(getSelectionPath(keyboardStart, coordinate));
+    setKeyboardStart(null);
+    setSelectedPath([]);
   }
 
   return (
@@ -352,7 +379,8 @@ export default function WordSearchBuilder() {
           <legend>Select words</legend>
 
           <p className="form-help">
-            Select words to include in the generated puzzle.
+            Select a small word list for the generated activity. Five words are
+            selected by default for this task.
           </p>
 
           <div className="word-search-builder__word-checkboxes">
@@ -372,13 +400,26 @@ export default function WordSearchBuilder() {
         </fieldset>
 
         <button
-          className="button button--primary word-search-builder__generate"
+          className="button button--secondary word-search-builder__generate"
           disabled={selectedWordIds.length === 0}
           onClick={handleGeneratePuzzle}
           type="button"
         >
-          Generate Puzzle
+          Regenerate Preview
         </button>
+
+        <button
+          className="button button--primary activity-generate-button"
+          disabled={puzzle.entries.length === 0}
+          onClick={handleGenerateHtml}
+          type="button"
+        >
+          Generate HTML
+        </button>
+
+        <p aria-live="polite" className="activity-download-status">
+          {downloadStatus}
+        </p>
       </section>
 
       <section
@@ -403,14 +444,16 @@ export default function WordSearchBuilder() {
         </div>
 
         {puzzle.unplacedWordIds.length > 0 ? (
-          <p
-            className="word-search-builder__warning"
-            role="status"
-          >
-            Some selected words could not be placed. Increase the
-            grid size and generate again.
+          <p className="word-search-builder__warning" role="status">
+            Some selected words could not be placed. Increase the grid size and
+            generate again.
           </p>
         ) : null}
+
+        <p className="form-help word-search-builder__interaction-help">
+          Drag across a word, or use the keyboard by activating its first and
+          last cells. Hover over a phoneme for its English letter hint.
+        </p>
 
         <div
           aria-label="Interactive phoneme word-search grid"
@@ -433,10 +476,10 @@ export default function WordSearchBuilder() {
               };
 
               const key = coordinateKey(coordinate);
+              const hint = getPhonemeHint(phoneme);
               const isSelected = selectedCellKeys.has(key);
               const isFound = foundCellKeys.has(key);
-              const isAnswer =
-                showAnswers && answerCellKeys.has(key);
+              const isAnswer = showAnswers && answerCellKeys.has(key);
 
               const stateClasses = [
                 isAnswer ? "word-search-cell--answer" : "",
@@ -450,16 +493,16 @@ export default function WordSearchBuilder() {
                 <button
                   aria-label={`Row ${rowIndex + 1}, column ${
                     columnIndex + 1
-                  }: ${phoneme}`}
+                  }: ${phoneme}. ${hint}`}
                   className={`word-search-cell ${stateClasses}`.trim()}
                   key={key}
+                  onClick={() => handleCellClick(coordinate)}
                   onPointerDown={(
                     event: ReactPointerEvent<HTMLButtonElement>,
                   ) => handlePointerDown(coordinate, event)}
-                  onPointerEnter={() =>
-                    handlePointerEnter(coordinate)
-                  }
+                  onPointerEnter={() => handlePointerEnter(coordinate)}
                   role="gridcell"
+                  title={`/${phoneme}/ — ${hint}`}
                   type="button"
                 >
                   {phoneme}
@@ -474,9 +517,7 @@ export default function WordSearchBuilder() {
           className="word-search-word-list"
         >
           <div className="word-search-word-list__heading">
-            <h3 id="word-search-word-list-heading">
-              Word list
-            </h3>
+            <h3 id="word-search-word-list-heading">Word list</h3>
 
             <p>
               {foundWordIds.size} of {puzzle.entries.length} found

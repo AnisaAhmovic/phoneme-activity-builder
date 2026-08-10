@@ -6,22 +6,26 @@ html[data-layout="wide"] {
   --content-width: 1360px;
 }
 
-html[data-theme="teal"] {
-  --primary: #0f6b67;
-  --primary-dark: #0a4f4c;
-  --focus: #b45309;
+html[data-theme="dark"] {
+  --background: #0f172a;
+  --surface: #111827;
+  --surface-muted: #1f2937;
+  --text: #f8fafc;
+  --text-muted: #cbd5e1;
+  --primary: #0e7490;
+  --primary-dark: #0891b2;
+  --border: #475569;
+  --focus: #f59e0b;
+  color-scheme: dark;
 }
 
-html[data-theme="high-contrast"] {
-  --background: #ffffff;
-  --surface: #ffffff;
-  --surface-muted: #f3f4f6;
-  --text: #111827;
-  --text-muted: #374151;
-  --primary: #1d4ed8;
-  --primary-dark: #1e3a8a;
-  --border: #9ca3af;
-  --focus: #b45309;
+html[data-theme="dark"] .site-brand,
+html[data-theme="dark"] .site-navigation__link:hover,
+html[data-theme="dark"] .selected-word-summary span,
+html[data-theme="dark"] .wordle-cell--entry,
+html[data-theme="dark"] .phoneme-key:hover:not(:disabled),
+html[data-theme="dark"] .phoneme-keyboard__actions button:hover:not(:disabled) {
+  color: #67e8f9;
 }
 
 body {
@@ -36,15 +40,50 @@ body {
 }
 
 .site-header__inner {
+  position: relative;
   min-height: 70px;
 }
 
 .site-brand {
+  display: grid;
   font-size: 1.08rem;
+  line-height: 1.15;
+  gap: 0.15rem;
+}
+
+.site-brand__assessment {
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.site-brand__project {
+  color: var(--text);
+  font-size: 1rem;
 }
 
 .site-navigation__link {
   font-size: 1rem;
+}
+
+.site-navigation-toggle {
+  display: none;
+  width: 46px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  padding: 9px 10px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.site-navigation-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  margin: 4px 0;
+  background: var(--text);
 }
 
 main {
@@ -135,6 +174,30 @@ main > p,
   font-weight: 700;
 }
 
+.about-video-card {
+  max-width: 900px;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.about-video {
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  border-radius: 0.55rem;
+  background: #000000;
+}
+
+.about-video-card .form-help {
+  margin-top: 0.75rem;
+}
+
+.about-video-card code {
+  font-family: var(--font-geist-mono), monospace;
+}
+
 .settings-panel {
   max-width: 900px;
   border: 1px solid var(--border);
@@ -177,6 +240,25 @@ main > p,
   display: flex;
   margin-top: 1.25rem;
   justify-content: flex-end;
+}
+
+.activity-generate-button {
+  width: 100%;
+  margin-top: 1rem;
+  cursor: pointer;
+}
+
+.activity-generate-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.activity-download-status {
+  min-height: 1.5rem;
+  margin: 0.65rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 
 .wordle-builder,
@@ -257,6 +339,10 @@ main > p,
   accent-color: var(--primary);
 }
 
+.word-search-builder__interaction-help {
+  margin: -0.5rem 0 1rem;
+}
+
 .word-search-grid {
   width: min(100%, 680px);
   gap: 4px;
@@ -308,13 +394,43 @@ main > p,
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 920px) {
   .site-header__inner {
-    min-height: auto;
+    min-height: 64px;
+    gap: 1rem;
+  }
+
+  .site-navigation-toggle {
+    display: block;
+    flex: 0 0 auto;
+  }
+
+  .site-navigation {
+    position: absolute;
+    top: calc(100% + 1px);
+    right: 0;
+    left: 0;
+    display: none;
+    border: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 0.6rem 0.6rem;
+    padding: 0.65rem;
+    background: var(--surface);
+    box-shadow: 0 12px 24px rgb(15 23 42 / 12%);
+  }
+
+  .site-navigation--open {
+    display: block;
+  }
+
+  .site-navigation__list {
+    display: grid;
+    width: 100%;
+    gap: 0.25rem;
   }
 
   .site-navigation__link {
-    padding: 0.55rem 0.7rem;
+    padding: 0.7rem 0.8rem;
   }
 
   .settings-actions {
@@ -327,12 +443,24 @@ main > p,
 }
 
 @media (max-width: 560px) {
+  .site-brand__assessment {
+    font-size: 0.62rem;
+  }
+
+  .site-brand__project {
+    font-size: 0.9rem;
+  }
+
   .wordle-builder__preview,
   .word-search-builder__preview,
   .settings-panel,
   .about-copy,
   .about-summary {
     padding: 1.25rem;
+  }
+
+  .about-video {
+    min-height: 180px;
   }
 
   .word-search-grid {
