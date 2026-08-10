@@ -526,63 +526,69 @@ export default function WordSearchBuilder() {
         </p>
 
         <div
+          aria-colcount={puzzle.grid[0]?.length ?? columns}
           aria-label="Interactive phoneme word-search grid"
+          aria-rowcount={puzzle.grid.length}
           className="word-search-grid"
           onPointerCancel={() => finishSelection(false)}
           onPointerLeave={() => finishSelection(false)}
           onPointerUp={() => finishSelection(true)}
           role="grid"
-          style={{
-            gridTemplateColumns: `repeat(${
-              puzzle.grid[0]?.length ?? columns
-            }, minmax(0, 1fr))`,
-          }}
         >
-          {puzzle.grid.flatMap((row, rowIndex) =>
-            row.map((phoneme, columnIndex) => {
-              const coordinate = {
-                row: rowIndex,
-                column: columnIndex,
-              };
+          {puzzle.grid.map((row, rowIndex) => (
+            <div
+              className="word-search-grid__row"
+              key={`row-${rowIndex}`}
+              role="row"
+              style={{
+                gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
+              }}
+            >
+              {row.map((phoneme, columnIndex) => {
+                const coordinate = {
+                  row: rowIndex,
+                  column: columnIndex,
+                };
 
-              const key = coordinateKey(coordinate);
-              const hint = getPhonemeHint(phoneme);
-              const isSelected = selectedCellKeys.has(key);
-              const isFound = foundCellKeys.has(key);
-              const isAnswer = showAnswers && answerCellKeys.has(key);
+                const key = coordinateKey(coordinate);
+                const hint = getPhonemeHint(phoneme);
+                const isSelected = selectedCellKeys.has(key);
+                const isFound = foundCellKeys.has(key);
+                const isAnswer = showAnswers && answerCellKeys.has(key);
 
-              const stateClasses = [
-                isAnswer ? "word-search-cell--answer" : "",
-                isSelected ? "word-search-cell--selected" : "",
-                isFound ? "word-search-cell--found" : "",
-              ]
-                .filter(Boolean)
-                .join(" ");
+                const stateClasses = [
+                  isAnswer ? "word-search-cell--answer" : "",
+                  isSelected ? "word-search-cell--selected" : "",
+                  isFound ? "word-search-cell--found" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
 
-              return (
-                <button
-                  aria-label={`Row ${rowIndex + 1}, column ${
-                    columnIndex + 1
-                  }: ${phoneme}. ${hint}`}
-                  aria-selected={isSelected || isFound}
-                  className={`word-search-cell ${stateClasses}`.trim()}
-                  data-grid-coordinate={key}
-                  key={key}
-                  onClick={() => handleCellClick(coordinate)}
-                  onKeyDown={(event) => handleCellKeyDown(coordinate, event)}
-                  onPointerDown={(
-                    event: ReactPointerEvent<HTMLButtonElement>,
-                  ) => handlePointerDown(coordinate, event)}
-                  onPointerEnter={() => handlePointerEnter(coordinate)}
-                  role="gridcell"
-                  title={`/${phoneme}/ — ${hint}`}
-                  type="button"
-                >
-                  {phoneme}
-                </button>
-              );
-            }),
-          )}
+                return (
+                  <button
+                    aria-label={`Row ${rowIndex + 1}, column ${
+                      columnIndex + 1
+                    }: ${phoneme}. ${hint}`}
+                    aria-selected={isSelected || isFound}
+                    className={`word-search-cell ${stateClasses}`.trim()}
+                    data-grid-coordinate={key}
+                    key={key}
+                    onClick={() => handleCellClick(coordinate)}
+                    onKeyDown={(event) => handleCellKeyDown(coordinate, event)}
+                    onPointerDown={(
+                      event: ReactPointerEvent<HTMLButtonElement>,
+                    ) => handlePointerDown(coordinate, event)}
+                    onPointerEnter={() => handlePointerEnter(coordinate)}
+                    role="gridcell"
+                    title={`/${phoneme}/ — ${hint}`}
+                    type="button"
+                  >
+                    {phoneme}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
 
         <section

@@ -36,6 +36,7 @@ export function generateWordSearchActivityHtml(
     .intro { max-width: 760px; color: #475569; line-height: 1.6; }
     .status { min-height: 48px; margin: 18px 0; border-left: 4px solid #155e75; padding: 10px 12px; background: #f1f5f9; line-height: 1.5; }
     .grid { display: grid; width: min(100%, 720px); margin: 0 auto; gap: 4px; touch-action: none; }
+    .grid-row { display: grid; gap: 4px; }
     .cell { display: grid; min-width: 0; aspect-ratio: 1; place-items: center; border: 1px solid #cbd5e1; border-radius: 5px; padding: 2px; background: #f8fafc; color: #172033; font: inherit; font-size: clamp(.82rem, 2.2vw, 1.05rem); font-weight: 800; cursor: pointer; }
     .cell:hover { background: #e8f2f7; }
     .cell:focus-visible { outline: 3px solid #f59e0b; outline-offset: 1px; }
@@ -53,7 +54,7 @@ export function generateWordSearchActivityHtml(
     button.control { min-height: 42px; border: 1px solid #155e75; border-radius: 8px; padding: 8px 14px; background: #fff; color: #155e75; font: inherit; font-weight: 700; cursor: pointer; }
     button.control:hover { background: #e8f2f7; }
     button.control:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
-    @media (max-width: 620px) { .card { padding: 16px; } .grid { gap: 2px; } }
+    @media (max-width: 620px) { .card { padding: 16px; } .grid, .grid-row { gap: 2px; } }
   </style>
 </head>
 <body>
@@ -198,9 +199,16 @@ export function generateWordSearchActivityHtml(
 
     function buildGrid() {
       const columns = activity.grid[0] ? activity.grid[0].length : 1;
-      gridElement.style.gridTemplateColumns = 'repeat(' + columns + ', minmax(0, 1fr))';
+      gridElement.innerHTML = '';
+      gridElement.setAttribute('aria-rowcount', String(activity.grid.length));
+      gridElement.setAttribute('aria-colcount', String(columns));
 
       activity.grid.forEach(function (row, rowIndex) {
+        const rowElement = document.createElement('div');
+        rowElement.className = 'grid-row';
+        rowElement.setAttribute('role', 'row');
+        rowElement.style.gridTemplateColumns = 'repeat(' + columns + ', minmax(0, 1fr))';
+
         row.forEach(function (phoneme, columnIndex) {
           const coordinate = { row: rowIndex, column: columnIndex };
           const button = document.createElement('button');
@@ -280,8 +288,10 @@ export function generateWordSearchActivityHtml(
             if (target) target.focus();
           });
 
-          gridElement.appendChild(button);
+          rowElement.appendChild(button);
         });
+
+        gridElement.appendChild(rowElement);
       });
     }
 

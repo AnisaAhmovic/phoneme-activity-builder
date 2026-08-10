@@ -191,6 +191,22 @@ public/phoneme-activity-builder-guide.mp4
 
 The final recorded guide should be added at that path before submission.
 
+## Design references (APA 7)
+
+International Phonetic Association. (1999). *Handbook of the International Phonetic Association: A guide to the use of the International Phonetic Alphabet*. Cambridge University Press. https://doi.org/10.1017/9780511807954
+
+Mayer, R. E. (2020). *Multimedia learning* (3rd ed.). Cambridge University Press. https://www.cambridge.org/highereducation/books/multimedia-learning/FB7E79A165D24D47CEACEB4D2C426ECD
+
+Nielsen, J. (1994, April 24). *10 usability heuristics for user interface design*. Nielsen Norman Group. https://www.nngroup.com/articles/ten-usability-heuristics/
+
+Vercel. (2026, March 25). *App Router*. Next.js. https://nextjs.org/docs/app
+
+World Wide Web Consortium. (n.d.-a). *Captions/subtitles*. Web Accessibility Initiative. Retrieved August 11, 2026, from https://www.w3.org/WAI/media/av/captions/
+
+World Wide Web Consortium. (n.d.-b). *Grid (interactive tabular data and layout containers) pattern*. Web Accessibility Initiative. Retrieved August 11, 2026, from https://www.w3.org/WAI/ARIA/apg/patterns/grid/
+
+World Wide Web Consortium. (2023, October 5). *Web Content Accessibility Guidelines (WCAG) 2.2*. https://www.w3.org/TR/WCAG22/
+
 ## Project structure
 
 ```text
