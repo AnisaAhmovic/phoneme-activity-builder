@@ -39,9 +39,13 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
 
-  const preferences = parseInterfacePreferences(
-    cookieStore.get(INTERFACE_PREFERENCES_COOKIE)?.value ?? null,
-  );
+  const savedPreferences = cookieStore.get(
+  INTERFACE_PREFERENCES_COOKIE,
+)?.value;
+
+const preferences = savedPreferences
+  ? parseInterfacePreferences(decodeURIComponent(savedPreferences))
+  : parseInterfacePreferences(null);
 
   return (
     <html
