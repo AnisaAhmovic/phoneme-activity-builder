@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="site-footer__inner">
         <p>Phoneme Activity Builder</p>
-        <p>Educational web application prototype</p>
+        <p>Anisa Ahmovic · Student 22318777</p>
       </div>
     </footer>
   );
