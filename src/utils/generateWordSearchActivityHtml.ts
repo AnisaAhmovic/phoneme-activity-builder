@@ -2,7 +2,9 @@ import { PHONEME_HINT_ENTRIES } from "@/data/phonemeHints";
 import type { GeneratedWordSearch } from "@/utils/generateWordSearch";
 
 function serialiseForScript(value: unknown): string {
-  return JSON.stringify(value)
+  const json = JSON.stringify(value) ?? "null";
+
+  return json
     .replace(/</g, "\\u003c")
     .replace(/\u2028/g, "\\u2028")
     .replace(/\u2029/g, "\\u2029");
