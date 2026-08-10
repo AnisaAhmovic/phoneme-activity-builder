@@ -7,7 +7,6 @@ import PreferenceInitializer from "@/components/settings/PreferenceInitializer";
 
 import "./globals.css";
 import "./ui-polish.css";
-import "./print.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
