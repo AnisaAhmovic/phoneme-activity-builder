@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ChangeEvent, PointerEvent as ReactPointerEvent } from "react";
 
+import PrintButton from "@/components/export/PrintButton";
 import { getWordsByPhonemeCount } from "@/data/phonemeCorpus";
 import type { PhonemeCount } from "@/types/phoneme";
 import {
@@ -244,8 +245,7 @@ export default function WordSearchBuilder() {
 
     const matchedEntry = puzzle.entries.find(
       ({ word, coordinates }) =>
-        !foundWordIds.has(word.id) &&
-        pathsMatch(path, coordinates),
+        !foundWordIds.has(word.id) && pathsMatch(path, coordinates),
     );
 
     if (matchedEntry) {
@@ -393,22 +393,43 @@ export default function WordSearchBuilder() {
             </h2>
           </div>
 
-          <button
-            className="button button--secondary"
-            onClick={() => setShowAnswers((current) => !current)}
-            type="button"
-          >
-            {showAnswers ? "Hide Answers" : "Show Answers"}
-          </button>
+          <div className="word-search-builder__preview-actions">
+            <button
+              className="button button--secondary"
+              onClick={() => setShowAnswers((current) => !current)}
+              type="button"
+            >
+              {showAnswers ? "Hide Answers" : "Show Answers"}
+            </button>
+
+            <PrintButton label="Print puzzle" mode="word-search-puzzle" />
+            <PrintButton
+              label="Print answer key"
+              mode="word-search-answer"
+            />
+          </div>
         </div>
 
+        <header aria-hidden="true" className="print-sheet-header">
+          <p className="print-sheet-header__eyebrow">
+            Phoneme Activity Builder
+          </p>
+          <h1>Phoneme Word Search</h1>
+          <p className="print-answer-key-label">Answer key</p>
+          <div className="print-student-fields print-student-fields--word-search">
+            <span>Name:</span>
+            <span>Date:</span>
+          </div>
+          <p className="print-sheet-instructions">
+            Find each word by tracing its phonemes horizontally, vertically or
+            diagonally. Words may run in either direction.
+          </p>
+        </header>
+
         {puzzle.unplacedWordIds.length > 0 ? (
-          <p
-            className="word-search-builder__warning"
-            role="status"
-          >
-            Some selected words could not be placed. Increase the
-            grid size and generate again.
+          <p className="word-search-builder__warning" role="status">
+            Some selected words could not be placed. Increase the grid size and
+            generate again.
           </p>
         ) : null}
 
@@ -435,10 +456,11 @@ export default function WordSearchBuilder() {
               const key = coordinateKey(coordinate);
               const isSelected = selectedCellKeys.has(key);
               const isFound = foundCellKeys.has(key);
-              const isAnswer =
-                showAnswers && answerCellKeys.has(key);
+              const isSolution = answerCellKeys.has(key);
+              const isAnswer = showAnswers && isSolution;
 
               const stateClasses = [
+                isSolution ? "word-search-cell--solution" : "",
                 isAnswer ? "word-search-cell--answer" : "",
                 isSelected ? "word-search-cell--selected" : "",
                 isFound ? "word-search-cell--found" : "",
@@ -456,9 +478,7 @@ export default function WordSearchBuilder() {
                   onPointerDown={(
                     event: ReactPointerEvent<HTMLButtonElement>,
                   ) => handlePointerDown(coordinate, event)}
-                  onPointerEnter={() =>
-                    handlePointerEnter(coordinate)
-                  }
+                  onPointerEnter={() => handlePointerEnter(coordinate)}
                   role="gridcell"
                   type="button"
                 >
@@ -474,9 +494,7 @@ export default function WordSearchBuilder() {
           className="word-search-word-list"
         >
           <div className="word-search-word-list__heading">
-            <h3 id="word-search-word-list-heading">
-              Word list
-            </h3>
+            <h3 id="word-search-word-list-heading">Word list</h3>
 
             <p>
               {foundWordIds.size} of {puzzle.entries.length} found
