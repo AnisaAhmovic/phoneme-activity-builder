@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 
+import PrintButton from "@/components/export/PrintButton";
 import { getWordsByPhonemeCount } from "@/data/phonemeCorpus";
 import { PHONEME_KEYBOARD_ROWS } from "@/data/phonemeKeyboard";
 import type { PhonemeCount } from "@/types/phoneme";
@@ -126,10 +127,34 @@ export default function WordleBuilder() {
         aria-labelledby="wordle-preview-heading"
         className="wordle-builder__preview"
       >
-        <div className="section-heading">
-          <p className="eyebrow">Live preview</p>
-          <h2 id="wordle-preview-heading">Wordle activity</h2>
+        <div className="activity-preview-heading">
+          <div className="section-heading">
+            <p className="eyebrow">Live preview</p>
+            <h2 id="wordle-preview-heading">Wordle activity</h2>
+          </div>
+
+          <div className="export-actions">
+            <PrintButton
+              label="Print / Save as PDF"
+              mode="wordle-activity"
+            />
+          </div>
         </div>
+
+        <header aria-hidden="true" className="print-sheet-header">
+          <p className="print-sheet-header__eyebrow">
+            Phoneme Activity Builder
+          </p>
+          <h1>Phoneme Wordle Activity</h1>
+          <div className="print-student-fields">
+            <span>Name:</span>
+            <span>Date:</span>
+          </div>
+          <p className="print-sheet-instructions">
+            Use the phoneme keyboard to record your guesses. Enter one phoneme
+            in each cell.
+          </p>
+        </header>
 
         <div className="wordle-workspace">
           <div className="wordle-board">
