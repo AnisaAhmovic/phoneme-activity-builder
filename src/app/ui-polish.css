@@ -21,6 +21,8 @@ html[data-theme="dark"] {
 
 html[data-theme="dark"] .site-brand,
 html[data-theme="dark"] .site-navigation__link:hover,
+html[data-theme="dark"] .eyebrow,
+html[data-theme="dark"] .activity-card__number,
 html[data-theme="dark"] .selected-word-summary span,
 html[data-theme="dark"] .wordle-cell--entry,
 html[data-theme="dark"] .phoneme-key:hover:not(:disabled),
@@ -194,6 +196,30 @@ main > p,
   margin-top: 0.75rem;
 }
 
+.about-video-transcript {
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--surface-muted);
+}
+
+.about-video-transcript summary {
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.about-video-transcript div {
+  border-top: 1px solid var(--border);
+  padding: 0.25rem 1rem 1rem;
+}
+
+.about-video-transcript p {
+  margin: 0.75rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
 .about-video-card code {
   font-family: var(--font-geist-mono), monospace;
 }
@@ -345,6 +371,10 @@ main > p,
 
 .word-search-grid {
   width: min(100%, 680px);
+  gap: 4px;
+}
+
+.word-search-grid__row {
   gap: 4px;
 }
 

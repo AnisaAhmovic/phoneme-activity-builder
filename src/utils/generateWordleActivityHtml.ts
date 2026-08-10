@@ -64,7 +64,7 @@ export function generateWordleActivityHtml(word: PhonemeWord): string {
       <p class="status" id="status" role="status" aria-live="polite">Select phonemes to make your first guess.</p>
       <div class="game">
         <div>
-          <div class="grid" id="grid" aria-label="Phoneme Wordle grid"></div>
+          <div class="grid" id="grid" role="grid" aria-label="Phoneme Wordle grid"></div>
           <div class="equivalence" id="equivalence" hidden></div>
         </div>
         <div>
@@ -101,15 +101,19 @@ export function generateWordleActivityHtml(word: PhonemeWord): string {
 
     function buildGrid() {
       grid.innerHTML = '';
+      grid.setAttribute('aria-rowcount', String(MAX_ROWS));
+      grid.setAttribute('aria-colcount', String(activity.targetPhonemes.length));
       for (let row = 0; row < MAX_ROWS; row += 1) {
         const rowElement = document.createElement('div');
         rowElement.className = 'row';
+        rowElement.setAttribute('role', 'row');
         rowElement.style.gridTemplateColumns = 'repeat(' + activity.targetPhonemes.length + ', minmax(0, 1fr))';
 
         for (let column = 0; column < activity.targetPhonemes.length; column += 1) {
           const cell = document.createElement('div');
           cell.className = 'cell';
           cell.id = cellId(row, column);
+          cell.setAttribute('role', 'gridcell');
           cell.setAttribute('aria-label', 'Row ' + (row + 1) + ', cell ' + (column + 1) + ': empty');
           rowElement.appendChild(cell);
         }

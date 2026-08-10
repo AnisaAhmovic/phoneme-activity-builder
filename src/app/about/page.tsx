@@ -69,10 +69,35 @@ export default function AboutPage() {
             />
             Your browser does not support embedded video.
           </video>
+
+          <details className="about-video-transcript">
+            <summary>Read the video transcript</summary>
+            <div>
+              <p>
+                Welcome to the Phoneme Activity Builder. Use the main
+                navigation to open the Wordle Builder or Word Search Builder.
+                In Wordle, choose a three, four or five phoneme target, select a
+                word and review the live preview. Select Generate HTML to
+                download a standalone activity. Open the downloaded file in a
+                browser, build guesses with the phoneme keyboard and submit an
+                answer to receive position feedback and the English word.
+              </p>
+              <p>
+                In Word Search, choose the phoneme count, select a small word
+                list, set the grid dimensions and regenerate the preview. Find
+                words by dragging across the grid or by activating the first
+                and last cells with a keyboard. Select Generate HTML to download
+                the independent activity. The Settings page changes the colour
+                theme and content width, and saves those preferences in a
+                browser cookie.
+              </p>
+            </div>
+          </details>
+
           <p className="form-help">
-            The final recorded website guide should be saved as
+            Record the guide using the transcript above, then save it as
             <code> public/phoneme-activity-builder-guide.mp4</code> before
-            submission.
+            submission so the transcript accurately matches the audio.
           </p>
         </div>
       </section>

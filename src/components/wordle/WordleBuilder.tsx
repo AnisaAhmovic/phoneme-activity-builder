@@ -162,13 +162,17 @@ export default function WordleBuilder() {
         <div className="wordle-workspace">
           <div className="wordle-board">
             <div
+              aria-colcount={phonemeCount}
               aria-label={`${phonemeCount}-phoneme Wordle grid`}
+              aria-rowcount={GRID_ROW_COUNT}
               className="wordle-grid"
+              role="grid"
             >
               {Array.from({ length: GRID_ROW_COUNT }, (_, rowIndex) => (
                 <div
                   className="wordle-grid__row"
                   key={`row-${rowIndex}`}
+                  role="row"
                   style={{
                     gridTemplateColumns: `repeat(${phonemeCount}, minmax(0, 1fr))`,
                   }}
@@ -201,6 +205,7 @@ export default function WordleBuilder() {
                         }
                         className={`wordle-cell wordle-cell--${cellState}`}
                         key={`cell-${rowIndex}-${columnIndex}`}
+                        role="gridcell"
                       >
                         {displayedPhoneme}
                       </div>

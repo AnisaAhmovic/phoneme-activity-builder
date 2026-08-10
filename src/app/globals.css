@@ -636,6 +636,11 @@ main > p {
   touch-action: none;
 }
 
+.word-search-grid__row {
+  display: grid;
+  gap: 3px;
+}
+
 .word-search-cell {
   display: grid;
   aspect-ratio: 1;
@@ -726,12 +731,12 @@ main > p {
 
 .word-search-word--found {
   background: #f0fdf4;
-  color: #6b7280;
+  color: #475569;
   text-decoration: line-through;
 }
 
 .word-search-word--found span {
-  color: #94a3b8;
+  color: #475569;
 }
 
 @media (max-width: 900px) {
