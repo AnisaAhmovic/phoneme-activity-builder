@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react";
 import type { ChangeEvent } from "react";
 
 import {
+  createClearInterfacePreferencesCookie,
+  createInterfacePreferencesCookie,
   DEFAULT_INTERFACE_PREFERENCES,
-  INTERFACE_PREFERENCES_STORAGE_KEY,
-  parseInterfacePreferences,
+  readInterfacePreferencesCookie,
   type InterfaceLayout,
   type InterfacePreferences,
   type InterfaceTheme,
@@ -15,11 +16,7 @@ import {
 function applyPreferences(preferences: InterfacePreferences): void {
   document.documentElement.dataset.theme = preferences.theme;
   document.documentElement.dataset.layout = preferences.layout;
-
-  window.localStorage.setItem(
-    INTERFACE_PREFERENCES_STORAGE_KEY,
-    JSON.stringify(preferences),
-  );
+  document.cookie = createInterfacePreferencesCookie(preferences);
 }
 
 export default function SettingsPanel() {
@@ -27,9 +24,7 @@ export default function SettingsPanel() {
   const layoutRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
-    const preferences = parseInterfacePreferences(
-      window.localStorage.getItem(INTERFACE_PREFERENCES_STORAGE_KEY),
-    );
+    const preferences = readInterfacePreferencesCookie(document.cookie);
 
     if (themeRef.current) {
       themeRef.current.value = preferences.theme;
@@ -78,7 +73,7 @@ export default function SettingsPanel() {
       DEFAULT_INTERFACE_PREFERENCES.theme;
     document.documentElement.dataset.layout =
       DEFAULT_INTERFACE_PREFERENCES.layout;
-    window.localStorage.removeItem(INTERFACE_PREFERENCES_STORAGE_KEY);
+    document.cookie = createClearInterfacePreferencesCookie();
   }
 
   return (
@@ -101,13 +96,11 @@ export default function SettingsPanel() {
               onChange={handleThemeChange}
               ref={themeRef}
             >
-              <option value="blue">Blue</option>
-              <option value="teal">Teal</option>
-              <option value="high-contrast">High contrast</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
             </select>
             <p className="form-help">
-              Changes the accent colour while keeping activity-state colours
-              distinct.
+              Switches between the required light and dark interface themes.
             </p>
           </div>
         </div>
@@ -133,10 +126,10 @@ export default function SettingsPanel() {
       </div>
 
       <div className="settings-note">
-        <strong>Saved in this browser</strong>
+        <strong>Saved in a cookie</strong>
         <p>
-          These preferences are stored locally and applied when the application
-          is opened again on this device.
+          Theme and layout preferences are stored in a browser cookie and
+          restored when the application is opened again.
         </p>
       </div>
 
