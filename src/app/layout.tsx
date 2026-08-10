@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-import PreferenceInitializer from "@/components/settings/PreferenceInitializer";
+import { ThemeProvider } from "@/components/settings/ThemeProvider";
+import {
+  INTERFACE_PREFERENCES_COOKIE,
+  parseInterfacePreferences,
+} from "@/utils/interfacePreferences";
 
 import "./globals.css";
 import "./ui-polish.css";
@@ -27,23 +32,38 @@ export const metadata: Metadata = {
     "Build, preview and export phoneme-based Wordle and word-search activities.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+
+  const savedPreferences = cookieStore.get(
+  INTERFACE_PREFERENCES_COOKIE,
+)?.value;
+
+  const preferences = savedPreferences
+    ? parseInterfacePreferences(decodeURIComponent(savedPreferences))
+    : parseInterfacePreferences(null);
+
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      data-theme={preferences.theme}
+      data-layout={preferences.layout}
+      data-scroll-behavior="smooth"
+    >
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <PreferenceInitializer />
+        <ThemeProvider initialTheme={preferences.theme}>
+          <div className="site-shell">
+            <Header />
 
-        <div className="site-shell">
-          <Header />
+            <div className="site-content">{children}</div>
 
-          <div className="site-content">{children}</div>
-
-          <Footer />
-        </div>
+            <Footer />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
