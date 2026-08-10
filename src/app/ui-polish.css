@@ -394,7 +394,7 @@ main > p,
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 920px) {
   .site-header__inner {
     min-height: 64px;
     gap: 1rem;
