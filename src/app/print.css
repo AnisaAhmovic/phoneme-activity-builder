@@ -1,0 +1,311 @@
+.activity-preview-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.export-actions,
+.word-search-builder__preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.export-actions .button,
+.word-search-builder__preview-actions .button {
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.print-sheet-header {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .activity-preview-heading,
+  .word-search-builder__preview-heading {
+    flex-direction: column;
+  }
+
+  .export-actions,
+  .word-search-builder__preview-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .export-actions .button,
+  .word-search-builder__preview-actions .button {
+    width: 100%;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.35;
+  }
+
+  .site-shell {
+    display: block !important;
+    min-height: auto !important;
+  }
+
+  .site-header,
+  .site-footer,
+  .page-heading,
+  .wordle-builder__controls,
+  .word-search-builder__controls,
+  .activity-preview-heading,
+  .word-search-builder__preview-heading,
+  .wordle-preview-key,
+  .word-search-builder__warning,
+  .phoneme-keyboard__actions {
+    display: none !important;
+  }
+
+  main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .wordle-builder,
+  .word-search-builder {
+    display: block !important;
+  }
+
+  .wordle-builder__preview,
+  .word-search-builder__preview {
+    min-width: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  .print-sheet-header {
+    display: block !important;
+    margin-bottom: 8mm;
+    border-bottom: 1pt solid #9ca3af;
+    padding-bottom: 5mm;
+    color: #000000;
+  }
+
+  .print-sheet-header__eyebrow {
+    margin: 0 0 1.5mm;
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .print-sheet-header h1 {
+    margin: 0;
+    font-size: 22pt;
+    line-height: 1.1;
+  }
+
+  .print-student-fields {
+    display: grid;
+    margin-top: 5mm;
+    grid-template-columns: 1fr 1fr;
+    gap: 10mm;
+  }
+
+  .print-student-fields span {
+    display: block;
+    min-height: 7mm;
+    border-bottom: 1pt solid #111111;
+    font-size: 10pt;
+  }
+
+  .print-sheet-instructions {
+    max-width: 170mm;
+    margin: 5mm 0 0;
+    color: #111111;
+    font-size: 9.5pt;
+  }
+
+  .print-answer-key-label {
+    display: none;
+    margin: 2mm 0 0;
+    font-size: 12pt;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  html[data-print-mode="word-search-answer"] .print-answer-key-label {
+    display: block !important;
+  }
+
+  html[data-print-mode="word-search-answer"]
+    .print-student-fields--word-search {
+    display: none !important;
+  }
+
+  .wordle-workspace {
+    display: block !important;
+  }
+
+  .wordle-board {
+    break-inside: avoid;
+  }
+
+  .wordle-grid {
+    gap: 2mm !important;
+  }
+
+  .wordle-grid__row {
+    width: 104mm !important;
+    max-width: 100% !important;
+    gap: 2mm !important;
+  }
+
+  .wordle-cell {
+    border: 1.2pt solid #111111 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 16pt !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .wordle-cell--answer,
+  .wordle-cell--entry {
+    border-color: #111111 !important;
+    background: #ffffff !important;
+    color: transparent !important;
+    text-shadow: none !important;
+  }
+
+  .phoneme-keyboard {
+    margin-top: 10mm !important;
+    border-top: 1pt solid #9ca3af !important;
+    border-left: 0 !important;
+    padding-top: 6mm !important;
+    padding-left: 0 !important;
+    break-inside: avoid;
+  }
+
+  .phoneme-keyboard__heading {
+    margin-bottom: 4mm !important;
+  }
+
+  .phoneme-keyboard__heading h3 {
+    font-size: 12pt !important;
+  }
+
+  .phoneme-keyboard__heading p {
+    color: #111111 !important;
+    font-size: 9pt !important;
+  }
+
+  .phoneme-keyboard__rows {
+    gap: 1.5mm !important;
+  }
+
+  .phoneme-keyboard__row {
+    gap: 1.5mm !important;
+  }
+
+  .phoneme-key {
+    min-width: 10mm !important;
+    min-height: 8mm !important;
+    border: 0.8pt solid #555555 !important;
+    border-radius: 1mm !important;
+    padding: 1mm 1.6mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 9.5pt !important;
+    opacity: 1 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .word-search-grid {
+    width: min(150mm, 100%) !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    gap: 1mm !important;
+    break-inside: avoid;
+  }
+
+  .word-search-cell,
+  .word-search-cell--answer,
+  .word-search-cell--selected,
+  .word-search-cell--found,
+  .word-search-cell--found.word-search-cell--selected {
+    border: 0.7pt solid #555555 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 9pt !important;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  html[data-print-mode="word-search-answer"]
+    .word-search-cell--solution {
+    border: 2pt solid #111111 !important;
+    background: #e5e7eb !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
+  }
+
+  .word-search-word-list {
+    margin-top: 7mm !important;
+    border-top: 1pt solid #9ca3af !important;
+    padding-top: 4mm !important;
+    break-inside: avoid;
+  }
+
+  .word-search-word-list__heading p {
+    display: none !important;
+  }
+
+  .word-search-word-list__heading h3 {
+    font-size: 12pt;
+  }
+
+  .word-search-word-list__items {
+    display: grid !important;
+    margin-top: 3mm !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2mm !important;
+  }
+
+  .word-search-word,
+  .word-search-word--found {
+    border: 0.7pt solid #d1d5db;
+    border-radius: 1mm !important;
+    padding: 2mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    text-decoration: none !important;
+  }
+
+  .word-search-word span,
+  .word-search-word--found span {
+    color: #222222 !important;
+    font-size: 8.5pt !important;
+  }
+}
