@@ -3,7 +3,9 @@ import { NORMALISED_PHONEME_KEYBOARD } from "@/data/phonemeKeyboard";
 import type { PhonemeWord } from "@/types/phoneme";
 
 function serialiseForScript(value: unknown): string {
-  return JSON.stringify(value)
+  const json = JSON.stringify(value) ?? "null";
+
+  return json
     .replace(/</g, "\\u003c")
     .replace(/\u2028/g, "\\u2028")
     .replace(/\u2029/g, "\\u2029");
