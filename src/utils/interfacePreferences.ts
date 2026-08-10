@@ -1,7 +1,7 @@
-export const INTERFACE_PREFERENCES_STORAGE_KEY =
-  "phoneme-activity-builder:interface-preferences";
+export const INTERFACE_PREFERENCES_COOKIE =
+  "phoneme_activity_builder_preferences";
 
-export const INTERFACE_THEMES = ["blue", "teal", "high-contrast"] as const;
+export const INTERFACE_THEMES = ["light", "dark"] as const;
 export const INTERFACE_LAYOUTS = ["standard", "wide"] as const;
 
 export type InterfaceTheme = (typeof INTERFACE_THEMES)[number];
@@ -13,7 +13,7 @@ export interface InterfacePreferences {
 }
 
 export const DEFAULT_INTERFACE_PREFERENCES: InterfacePreferences = {
-  theme: "blue",
+  theme: "light",
   layout: "standard",
 };
 
@@ -46,4 +46,37 @@ export function parseInterfacePreferences(
   } catch {
     return DEFAULT_INTERFACE_PREFERENCES;
   }
+}
+
+export function readInterfacePreferencesCookie(
+  cookieString: string,
+): InterfacePreferences {
+  const prefix = `${INTERFACE_PREFERENCES_COOKIE}=`;
+  const cookieValue = cookieString
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(prefix))
+    ?.slice(prefix.length);
+
+  if (!cookieValue) {
+    return DEFAULT_INTERFACE_PREFERENCES;
+  }
+
+  try {
+    return parseInterfacePreferences(decodeURIComponent(cookieValue));
+  } catch {
+    return DEFAULT_INTERFACE_PREFERENCES;
+  }
+}
+
+export function createInterfacePreferencesCookie(
+  preferences: InterfacePreferences,
+): string {
+  const value = encodeURIComponent(JSON.stringify(preferences));
+
+  return `${INTERFACE_PREFERENCES_COOKIE}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`;
+}
+
+export function createClearInterfacePreferencesCookie(): string {
+  return `${INTERFACE_PREFERENCES_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
 }
