@@ -3,9 +3,11 @@
 import { useMemo, useState } from "react";
 import type { ChangeEvent, PointerEvent as ReactPointerEvent } from "react";
 
-import PrintButton from "@/components/export/PrintButton";
 import { getWordsByPhonemeCount } from "@/data/phonemeCorpus";
+import { getPhonemeHint } from "@/data/phonemeHints";
 import type { PhonemeCount } from "@/types/phoneme";
+import { downloadHtmlFile } from "@/utils/downloadHtmlFile";
+import { generateWordSearchActivityHtml } from "@/utils/generateWordSearchActivityHtml";
 import {
   generateWordSearch,
   type GeneratedWordSearch,
@@ -16,17 +18,13 @@ const PHONEME_COUNTS: readonly PhonemeCount[] = [3, 4, 5];
 const DEFAULT_PHONEME_COUNT: PhonemeCount = 3;
 const DEFAULT_ROWS = 10;
 const DEFAULT_COLUMNS = 10;
-const DEFAULT_WORD_LIMIT = 9;
+const DEFAULT_WORD_LIMIT = 5;
 const DEFAULT_WORD_IDS = [
   "3-boot",
   "3-bait",
   "3-chin",
   "3-jam",
   "3-ring",
-  "3-log",
-  "3-fan",
-  "3-van",
-  "3-sun",
 ] as const;
 const MIN_GRID_SIZE = 6;
 const MAX_GRID_SIZE = 16;
@@ -146,7 +144,9 @@ export default function WordSearchBuilder() {
 
   const [showAnswers, setShowAnswers] = useState(false);
   const [dragStart, setDragStart] = useState<GridCoordinate | null>(null);
+  const [keyboardStart, setKeyboardStart] = useState<GridCoordinate | null>(null);
   const [selectedPath, setSelectedPath] = useState<GridCoordinate[]>([]);
+  const [downloadStatus, setDownloadStatus] = useState("");
 
   const [foundSelections, setFoundSelections] = useState<
     Record<string, readonly GridCoordinate[]>
@@ -185,8 +185,10 @@ export default function WordSearchBuilder() {
   function resetInteractionState(): void {
     setShowAnswers(false);
     setDragStart(null);
+    setKeyboardStart(null);
     setSelectedPath([]);
     setFoundSelections({});
+    setDownloadStatus("");
   }
 
   function handlePhonemeCountChange(
@@ -213,6 +215,7 @@ export default function WordSearchBuilder() {
         ? currentIds.filter((id) => id !== wordId)
         : [...currentIds, wordId],
     );
+    setDownloadStatus("");
   }
 
   function handleGridSizeChange(
@@ -220,6 +223,7 @@ export default function WordSearchBuilder() {
     event: ChangeEvent<HTMLInputElement>,
   ): void {
     setter(normaliseGridSize(Number(event.target.value)));
+    setDownloadStatus("");
   }
 
   function handleGeneratePuzzle(): void {
@@ -236,6 +240,12 @@ export default function WordSearchBuilder() {
       ),
     );
     resetInteractionState();
+  }
+
+  function handleGenerateHtml(): void {
+    const filename = "phoneme-word-search.html";
+    downloadHtmlFile(filename, generateWordSearchActivityHtml(puzzle));
+    setDownloadStatus(`${filename} downloaded and ready to open in a browser.`);
   }
 
   function checkSelection(path: readonly GridCoordinate[]): void {
@@ -275,6 +285,7 @@ export default function WordSearchBuilder() {
     }
 
     event.preventDefault();
+    setKeyboardStart(null);
     setDragStart(coordinate);
     setSelectedPath([coordinate]);
   }
@@ -285,6 +296,22 @@ export default function WordSearchBuilder() {
     }
 
     setSelectedPath(getSelectionPath(dragStart, coordinate));
+  }
+
+  function handleCellClick(coordinate: GridCoordinate): void {
+    if (dragStart) {
+      return;
+    }
+
+    if (!keyboardStart) {
+      setKeyboardStart(coordinate);
+      setSelectedPath([coordinate]);
+      return;
+    }
+
+    checkSelection(getSelectionPath(keyboardStart, coordinate));
+    setKeyboardStart(null);
+    setSelectedPath([]);
   }
 
   return (
@@ -352,7 +379,8 @@ export default function WordSearchBuilder() {
           <legend>Select words</legend>
 
           <p className="form-help">
-            Select words to include in the generated puzzle.
+            Select a small word list for the generated activity. Five words are
+            selected by default for this task.
           </p>
 
           <div className="word-search-builder__word-checkboxes">
@@ -372,13 +400,26 @@ export default function WordSearchBuilder() {
         </fieldset>
 
         <button
-          className="button button--primary word-search-builder__generate"
+          className="button button--secondary word-search-builder__generate"
           disabled={selectedWordIds.length === 0}
           onClick={handleGeneratePuzzle}
           type="button"
         >
-          Generate Puzzle
+          Regenerate Preview
         </button>
+
+        <button
+          className="button button--primary activity-generate-button"
+          disabled={puzzle.entries.length === 0}
+          onClick={handleGenerateHtml}
+          type="button"
+        >
+          Generate HTML
+        </button>
+
+        <p aria-live="polite" className="activity-download-status">
+          {downloadStatus}
+        </p>
       </section>
 
       <section
@@ -393,38 +434,14 @@ export default function WordSearchBuilder() {
             </h2>
           </div>
 
-          <div className="word-search-builder__preview-actions">
-            <button
-              className="button button--secondary"
-              onClick={() => setShowAnswers((current) => !current)}
-              type="button"
-            >
-              {showAnswers ? "Hide Answers" : "Show Answers"}
-            </button>
-
-            <PrintButton label="Print puzzle" mode="word-search-puzzle" />
-            <PrintButton
-              label="Print answer key"
-              mode="word-search-answer"
-            />
-          </div>
+          <button
+            className="button button--secondary"
+            onClick={() => setShowAnswers((current) => !current)}
+            type="button"
+          >
+            {showAnswers ? "Hide Answers" : "Show Answers"}
+          </button>
         </div>
-
-        <header aria-hidden="true" className="print-sheet-header">
-          <p className="print-sheet-header__eyebrow">
-            Phoneme Activity Builder
-          </p>
-          <h1>Phoneme Word Search</h1>
-          <p className="print-answer-key-label">Answer key</p>
-          <div className="print-student-fields print-student-fields--word-search">
-            <span>Name:</span>
-            <span>Date:</span>
-          </div>
-          <p className="print-sheet-instructions">
-            Find each word by tracing its phonemes horizontally, vertically or
-            diagonally. Words may run in either direction.
-          </p>
-        </header>
 
         {puzzle.unplacedWordIds.length > 0 ? (
           <p className="word-search-builder__warning" role="status">
@@ -432,6 +449,11 @@ export default function WordSearchBuilder() {
             generate again.
           </p>
         ) : null}
+
+        <p className="form-help word-search-builder__interaction-help">
+          Drag across a word, or use the keyboard by activating its first and
+          last cells. Hover over a phoneme for its English letter hint.
+        </p>
 
         <div
           aria-label="Interactive phoneme word-search grid"
@@ -454,13 +476,12 @@ export default function WordSearchBuilder() {
               };
 
               const key = coordinateKey(coordinate);
+              const hint = getPhonemeHint(phoneme);
               const isSelected = selectedCellKeys.has(key);
               const isFound = foundCellKeys.has(key);
-              const isSolution = answerCellKeys.has(key);
-              const isAnswer = showAnswers && isSolution;
+              const isAnswer = showAnswers && answerCellKeys.has(key);
 
               const stateClasses = [
-                isSolution ? "word-search-cell--solution" : "",
                 isAnswer ? "word-search-cell--answer" : "",
                 isSelected ? "word-search-cell--selected" : "",
                 isFound ? "word-search-cell--found" : "",
@@ -472,14 +493,16 @@ export default function WordSearchBuilder() {
                 <button
                   aria-label={`Row ${rowIndex + 1}, column ${
                     columnIndex + 1
-                  }: ${phoneme}`}
+                  }: ${phoneme}. ${hint}`}
                   className={`word-search-cell ${stateClasses}`.trim()}
                   key={key}
+                  onClick={() => handleCellClick(coordinate)}
                   onPointerDown={(
                     event: ReactPointerEvent<HTMLButtonElement>,
                   ) => handlePointerDown(coordinate, event)}
                   onPointerEnter={() => handlePointerEnter(coordinate)}
                   role="gridcell"
+                  title={`/${phoneme}/ — ${hint}`}
                   type="button"
                 >
                   {phoneme}
