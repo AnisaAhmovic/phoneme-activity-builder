@@ -43,9 +43,9 @@ export default async function RootLayout({
   INTERFACE_PREFERENCES_COOKIE,
 )?.value;
 
-const preferences = savedPreferences
-  ? parseInterfacePreferences(decodeURIComponent(savedPreferences))
-  : parseInterfacePreferences(null);
+  const preferences = savedPreferences
+    ? parseInterfacePreferences(decodeURIComponent(savedPreferences))
+    : parseInterfacePreferences(null);
 
   return (
     <html
