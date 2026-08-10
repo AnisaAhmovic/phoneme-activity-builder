@@ -89,6 +89,8 @@ export function generateWordSearchActivityHtml(
     let pointerStart = null;
     let pointerPath = [];
     let keyboardStart = null;
+    let didPointerDrag = false;
+    let suppressNextClick = false;
     let showingAnswers = false;
 
     function key(coordinate) {
@@ -213,8 +215,8 @@ export function generateWordSearchActivityHtml(
 
           button.addEventListener('pointerdown', function (event) {
             if (event.pointerType === 'mouse' && event.button !== 0) return;
-            event.preventDefault();
-            keyboardStart = null;
+            didPointerDrag = false;
+            suppressNextClick = false;
             pointerStart = coordinate;
             pointerPath = [coordinate];
             showSelected(pointerPath);
@@ -222,13 +224,60 @@ export function generateWordSearchActivityHtml(
 
           button.addEventListener('pointerenter', function () {
             if (!pointerStart) return;
+
+            if (
+              coordinate.row !== pointerStart.row ||
+              coordinate.column !== pointerStart.column
+            ) {
+              didPointerDrag = true;
+              keyboardStart = null;
+            }
+
             pointerPath = getPath(pointerStart, coordinate);
             showSelected(pointerPath);
           });
 
           button.addEventListener('click', function () {
-            if (pointerStart) return;
+            if (suppressNextClick) {
+              suppressNextClick = false;
+              return;
+            }
+
             handleKeyboardActivation(coordinate);
+          });
+
+          button.addEventListener('keydown', function (event) {
+            const directions = {
+              ArrowUp: { row: -1, column: 0 },
+              ArrowDown: { row: 1, column: 0 },
+              ArrowLeft: { row: 0, column: -1 },
+              ArrowRight: { row: 0, column: 1 },
+            };
+
+            const direction = directions[event.key];
+            if (!direction) return;
+
+            event.preventDefault();
+
+            const nextCoordinate = {
+              row: coordinate.row + direction.row,
+              column: coordinate.column + direction.column,
+            };
+
+            const rowCount = activity.grid.length;
+            const columnCount = activity.grid[0] ? activity.grid[0].length : 0;
+
+            if (
+              nextCoordinate.row < 0 ||
+              nextCoordinate.row >= rowCount ||
+              nextCoordinate.column < 0 ||
+              nextCoordinate.column >= columnCount
+            ) {
+              return;
+            }
+
+            const target = cellFor(nextCoordinate);
+            if (target) target.focus();
           });
 
           gridElement.appendChild(button);
@@ -236,9 +285,18 @@ export function generateWordSearchActivityHtml(
       });
     }
 
-    function finishPointerSelection() {
+    function finishPointerSelection(shouldSuppressClick) {
       if (!pointerStart) return;
-      checkPath(pointerPath);
+
+      if (didPointerDrag) {
+        checkPath(pointerPath);
+      }
+
+      if (shouldSuppressClick && didPointerDrag) {
+        suppressNextClick = true;
+      }
+
+      didPointerDrag = false;
       pointerStart = null;
       pointerPath = [];
       clearSelected();
@@ -273,9 +331,15 @@ export function generateWordSearchActivityHtml(
       answersButton.textContent = showingAnswers ? 'Hide answers' : 'Show answers';
     }
 
-    gridElement.addEventListener('pointerup', finishPointerSelection);
-    gridElement.addEventListener('pointercancel', finishPointerSelection);
-    gridElement.addEventListener('pointerleave', finishPointerSelection);
+    gridElement.addEventListener('pointerup', function () {
+      finishPointerSelection(true);
+    });
+    gridElement.addEventListener('pointercancel', function () {
+      finishPointerSelection(false);
+    });
+    gridElement.addEventListener('pointerleave', function () {
+      finishPointerSelection(false);
+    });
     answersButton.addEventListener('click', toggleAnswers);
 
     buildGrid();

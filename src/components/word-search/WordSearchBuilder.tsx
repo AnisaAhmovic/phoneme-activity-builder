@@ -1,7 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { ChangeEvent, PointerEvent as ReactPointerEvent } from "react";
+import { useMemo, useRef, useState } from "react";
+import type {
+  ChangeEvent,
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 
 import { getWordsByPhonemeCount } from "@/data/phonemeCorpus";
 import { getPhonemeHint } from "@/data/phonemeHints";
@@ -145,6 +149,8 @@ export default function WordSearchBuilder() {
   const [showAnswers, setShowAnswers] = useState(false);
   const [dragStart, setDragStart] = useState<GridCoordinate | null>(null);
   const [keyboardStart, setKeyboardStart] = useState<GridCoordinate | null>(null);
+  const didPointerDrag = useRef(false);
+  const suppressNextClick = useRef(false);
   const [selectedPath, setSelectedPath] = useState<GridCoordinate[]>([]);
   const [downloadStatus, setDownloadStatus] = useState("");
 
@@ -266,12 +272,20 @@ export default function WordSearchBuilder() {
     }
   }
 
-  function finishSelection(): void {
+  function finishSelection(suppressClick: boolean): void {
     if (!dragStart) {
       return;
     }
 
-    checkSelection(selectedPath);
+    if (didPointerDrag.current) {
+      checkSelection(selectedPath);
+    }
+
+    if (suppressClick && didPointerDrag.current) {
+      suppressNextClick.current = true;
+    }
+
+    didPointerDrag.current = false;
     setDragStart(null);
     setSelectedPath([]);
   }
@@ -284,8 +298,8 @@ export default function WordSearchBuilder() {
       return;
     }
 
-    event.preventDefault();
-    setKeyboardStart(null);
+    didPointerDrag.current = false;
+    suppressNextClick.current = false;
     setDragStart(coordinate);
     setSelectedPath([coordinate]);
   }
@@ -295,11 +309,20 @@ export default function WordSearchBuilder() {
       return;
     }
 
+    if (
+      coordinate.row !== dragStart.row ||
+      coordinate.column !== dragStart.column
+    ) {
+      didPointerDrag.current = true;
+      setKeyboardStart(null);
+    }
+
     setSelectedPath(getSelectionPath(dragStart, coordinate));
   }
 
   function handleCellClick(coordinate: GridCoordinate): void {
-    if (dragStart) {
+    if (suppressNextClick.current) {
+      suppressNextClick.current = false;
       return;
     }
 
@@ -312,6 +335,51 @@ export default function WordSearchBuilder() {
     checkSelection(getSelectionPath(keyboardStart, coordinate));
     setKeyboardStart(null);
     setSelectedPath([]);
+  }
+
+  function handleCellKeyDown(
+    coordinate: GridCoordinate,
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+  ): void {
+    const directions: Record<string, GridCoordinate> = {
+      ArrowUp: { row: -1, column: 0 },
+      ArrowDown: { row: 1, column: 0 },
+      ArrowLeft: { row: 0, column: -1 },
+      ArrowRight: { row: 0, column: 1 },
+    };
+
+    const direction = directions[event.key];
+
+    if (!direction) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const nextCoordinate = {
+      row: coordinate.row + direction.row,
+      column: coordinate.column + direction.column,
+    };
+
+    const rowCount = puzzle.grid.length;
+    const columnCount = puzzle.grid[0]?.length ?? 0;
+
+    if (
+      nextCoordinate.row < 0 ||
+      nextCoordinate.row >= rowCount ||
+      nextCoordinate.column < 0 ||
+      nextCoordinate.column >= columnCount
+    ) {
+      return;
+    }
+
+    const target = event.currentTarget
+      .closest(".word-search-grid")
+      ?.querySelector<HTMLButtonElement>(
+        `[data-grid-coordinate="${coordinateKey(nextCoordinate)}"]`,
+      );
+
+    target?.focus();
   }
 
   return (
@@ -451,16 +519,18 @@ export default function WordSearchBuilder() {
         ) : null}
 
         <p className="form-help word-search-builder__interaction-help">
-          Drag across a word, or use the keyboard by activating its first and
-          last cells. Hover over a phoneme for its English letter hint.
+          Drag across a word, or activate its first and last cells without
+          dragging. Keyboard users can move between grid cells with Tab or the
+          arrow keys and activate cells with Enter or Space. Hover over a
+          phoneme for its English letter hint.
         </p>
 
         <div
           aria-label="Interactive phoneme word-search grid"
           className="word-search-grid"
-          onPointerCancel={finishSelection}
-          onPointerLeave={finishSelection}
-          onPointerUp={finishSelection}
+          onPointerCancel={() => finishSelection(false)}
+          onPointerLeave={() => finishSelection(false)}
+          onPointerUp={() => finishSelection(true)}
           role="grid"
           style={{
             gridTemplateColumns: `repeat(${
@@ -494,9 +564,12 @@ export default function WordSearchBuilder() {
                   aria-label={`Row ${rowIndex + 1}, column ${
                     columnIndex + 1
                   }: ${phoneme}. ${hint}`}
+                  aria-selected={isSelected || isFound}
                   className={`word-search-cell ${stateClasses}`.trim()}
+                  data-grid-coordinate={key}
                   key={key}
                   onClick={() => handleCellClick(coordinate)}
+                  onKeyDown={(event) => handleCellKeyDown(coordinate, event)}
                   onPointerDown={(
                     event: ReactPointerEvent<HTMLButtonElement>,
                   ) => handlePointerDown(coordinate, event)}
