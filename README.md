@@ -183,13 +183,11 @@ The selected preferences are saved in a browser cookie and restored when the app
 
 ## Website guide video
 
-The About page is prepared to display the required short website guide video from:
+The About page includes a website guide video explaining how to use the Phoneme Activity Builder.
 
-```text
-public/phoneme-activity-builder-guide.mp4
-```
+The guide is stored at public/phoneme-activity-builder-guide.mp4.
 
-The final recorded guide should be added at that path before submission.
+An expandable written transcript is provided beneath the video for accessibility and reference.
 
 ## Design references (APA 7)
 

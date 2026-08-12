@@ -74,31 +74,67 @@ export default function AboutPage() {
             <summary>Read the video transcript</summary>
             <div>
               <p>
-                Welcome to the Phoneme Activity Builder. Use the main
-                navigation to open the Wordle Builder or Word Search Builder.
-                In Wordle, choose a three, four or five phoneme target, select a
-                word and review the live preview. Select Generate HTML to
-                download a standalone activity. Open the downloaded file in a
-                browser, build guesses with the phoneme keyboard and submit an
-                answer to receive position feedback and the English word.
+                Hi, my name is Anisa Ahmovic. This is a quick walkthrough of
+                my Phoneme Activity Builder website.
               </p>
+
               <p>
-                In Word Search, choose the phoneme count, select a small word
-                list, set the grid dimensions and regenerate the preview. Find
-                words by dragging across the grid or by activating the first
-                and last cells with a keyboard. Select Generate HTML to download
-                the independent activity. The Settings page changes the colour
-                theme and content width, and saves those preferences in a
-                browser cookie.
+                There are five main pages available from the navigation at the
+                top right. If you are using a tablet or mobile device, the
+                navigation changes to a hamburger menu. The Home page provides
+                quick access to the Wordle and Word Search builders.
+              </p>
+
+              <p>
+                If you select Build a Wordle activity, you can choose the
+                number of phonemes you want in the Wordle. The activity
+                automatically updates the preview for you. There is also a
+                phoneme keyboard available.
+              </p>
+
+              <p>
+                When the activity is ready, select Generate HTML. The HTML file
+                appears in your Downloads folder and can be opened directly in
+                a normal web browser. Hovering over a phoneme shows its English
+                equivalence. In this example, the target word is bit. If a
+                phoneme is incorrect, the cell remains grey. If the correct
+                phoneme is in the wrong position, the cell turns yellow.
+                Correct phonemes in the correct position are shown in green.
+                The activity also provides Delete and Restart controls, with
+                Restart keeping the same target word.
+              </p>
+
+              <p>
+                The Word Search builder works in a similar way. You can change
+                the number of phonemes used in the Word Search, and the
+                available words update automatically. You can also change the
+                number of rows and columns. For example, you can use a
+                six-row by six-column grid and select Regenerate Preview to
+                build a new puzzle. You can then generate the standalone HTML
+                file.
+              </p>
+
+              <p>
+                The preview includes a Show Answers option. To find a word, you
+                can select the first and last cells or drag across the word.
+                The word list is displayed underneath the grid.
+              </p>
+
+              <p>
+                The Word Search can also be used with the keyboard. You can use
+                Tab to navigate to the grid, the arrow keys to move between
+                cells, and Enter or Space to select the first and last cells of
+                a word.
+              </p>
+
+              <p>
+                Finally, the Settings page allows you to change between light
+                and dark mode and adjust the layout. These preferences are
+                saved, so they remain selected when you navigate away and
+                return to the website. Thank you for watching.
               </p>
             </div>
           </details>
-
-          <p className="form-help">
-            Record the guide using the transcript above, then save it as
-            <code> public/phoneme-activity-builder-guide.mp4</code> before
-            submission so the transcript accurately matches the audio.
-          </p>
         </div>
       </section>
 
