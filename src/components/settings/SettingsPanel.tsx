@@ -77,10 +77,12 @@ export default function SettingsPanel() {
             >
               <option value="light">Light</option>
               <option value="dark">Dark</option>
+              <option value="system">System</option>
             </select>
 
             <p className="form-help">
-              Switches between the required light and dark interface themes.
+              Use a light or dark theme, or follow the browser and operating
+              system preference.
             </p>
           </div>
         </div>

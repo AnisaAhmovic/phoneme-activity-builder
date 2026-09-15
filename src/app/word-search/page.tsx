@@ -16,8 +16,9 @@ export default function WordSearchPage() {
         <h1>Word Search Builder</h1>
 
         <p>
-          Select phoneme-based words, generate a puzzle, then drag across the
-          grid to find words in any straight direction.
+          Select words from a teacher-managed list, configure and save the
+          puzzle, then drag across the grid to find words in any straight
+          direction.
         </p>
       </div>
 

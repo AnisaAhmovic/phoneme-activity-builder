@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | Phoneme Activity Builder",
   },
   description:
-    "Build, preview and export phoneme-based Wordle and word-search activities.",
+    "Store, build and export phoneme-based Wordle and word-search activities.",
 };
 
 export default async function RootLayout({
@@ -40,8 +40,8 @@ export default async function RootLayout({
   const cookieStore = await cookies();
 
   const savedPreferences = cookieStore.get(
-  INTERFACE_PREFERENCES_COOKIE,
-)?.value;
+    INTERFACE_PREFERENCES_COOKIE,
+  )?.value;
 
   const preferences = savedPreferences
     ? parseInterfacePreferences(decodeURIComponent(savedPreferences))
