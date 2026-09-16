@@ -287,19 +287,6 @@ phoneme-activity-builder/
 └── README.md
 ```
 
-## Video walkthrough preparation
-
-The submission video must begin with student identification in the first 30 seconds and show the presenter’s face with narration. A concise demonstration order, narration prompts and pre-recording checklist are provided in [`docs/assessment-2-video-script.md`](docs/assessment-2-video-script.md).
-
-The most important live evidence is:
-
-1. schema relationships and multi-character phonemes
-2. teacher CRUD for a new list and word
-3. saved-configuration CRUD
-4. database content driving both builders and downloads
-5. `/health` returning HTTP 200
-6. the application starting through Docker Compose
-
 ## References (APA 7)
 
 Docker, Inc. (n.d.-a). *Compose file reference*. Retrieved September 09, 2026, from https://docs.docker.com/reference/compose-file/
