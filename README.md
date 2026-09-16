@@ -260,7 +260,6 @@ The stored settings that affect generated output are:
 ```text
 phoneme-activity-builder/
 ├── .github/workflows/       # Automated checks
-├── docs/                    # Assessment walkthrough support
 ├── prisma/
 │   ├── migrations/          # Versioned PostgreSQL schema
 │   ├── schema.prisma        # ORM data model
