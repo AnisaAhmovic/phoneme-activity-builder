@@ -11,12 +11,31 @@ function serialiseForScript(value: unknown): string {
     .replace(/\u2029/g, "\\u2029");
 }
 
-export function generateWordleActivityHtml(word: PhonemeWord): string {
+export interface WordleOutputSettings {
+  maxAttempts?: number;
+  hintsEnabled?: boolean;
+  includeAnswerKey?: boolean;
+}
+
+export function generateWordleActivityHtml(
+  word: PhonemeWord,
+  settings: WordleOutputSettings = {},
+): string {
+  const maxAttempts = Math.min(
+    10,
+    Math.max(1, Math.floor(settings.maxAttempts ?? 6)),
+  );
+  const hintsEnabled = settings.hintsEnabled ?? true;
+  const includeAnswerKey = settings.includeAnswerKey ?? true;
+
   const payload = serialiseForScript({
     targetWord: word.word,
     targetPhonemes: word.phonemes,
     keyboard: NORMALISED_PHONEME_KEYBOARD,
-    hints: Object.fromEntries(PHONEME_HINT_ENTRIES),
+    hints: hintsEnabled ? Object.fromEntries(PHONEME_HINT_ENTRIES) : {},
+    hintsEnabled,
+    includeAnswerKey,
+    maxAttempts,
   });
 
   return `<!doctype html>
@@ -69,7 +88,7 @@ export function generateWordleActivityHtml(word: PhonemeWord): string {
         </div>
         <div>
           <h2>Phoneme keyboard</h2>
-          <p class="hint">Hover over or focus a phoneme button to see its English letter equivalence, for example /θ/ is TH (as in thin).</p>
+          <p class="hint"${hintsEnabled ? "" : " hidden"}>Hover over or focus a phoneme button to see its English letter equivalence, for example /θ/ is TH (as in thin).</p>
           <div class="keyboard" id="keyboard" aria-label="Phoneme keyboard"></div>
           <div class="controls">
             <button id="delete-button" type="button">Delete</button>
@@ -82,7 +101,7 @@ export function generateWordleActivityHtml(word: PhonemeWord): string {
   </main>
   <script>
     const activity = ${payload};
-    const MAX_ROWS = 6;
+    const MAX_ROWS = activity.maxAttempts;
     let currentGuess = [];
     let currentRow = 0;
     let gameOver = false;
@@ -129,8 +148,12 @@ export function generateWordleActivityHtml(word: PhonemeWord): string {
         const hint = activity.hints[phoneme] || ('Phoneme /' + phoneme + '/');
         button.type = 'button';
         button.textContent = phoneme;
-        button.title = '/' + phoneme + '/ — ' + hint;
-        button.setAttribute('aria-label', 'Enter phoneme ' + phoneme + '. ' + hint);
+        if (activity.hintsEnabled) {
+          button.title = '/' + phoneme + '/ — ' + hint;
+          button.setAttribute('aria-label', 'Enter phoneme ' + phoneme + '. ' + hint);
+        } else {
+          button.setAttribute('aria-label', 'Enter phoneme ' + phoneme + '.');
+        }
         button.addEventListener('click', function () { enterPhoneme(phoneme); });
         keyboard.appendChild(button);
       });
@@ -208,9 +231,13 @@ export function generateWordleActivityHtml(word: PhonemeWord): string {
 
       if (currentRow >= MAX_ROWS) {
         gameOver = true;
-        status.textContent = 'No guesses remain. The answer was ' + activity.targetWord + ' = /' + activity.targetPhonemes.join(' · ') + '/.';
-        equivalence.hidden = false;
-        equivalence.textContent = activity.targetWord + ' = /' + activity.targetPhonemes.join(' · ') + '/';
+        if (activity.includeAnswerKey) {
+          status.textContent = 'No guesses remain. The answer was ' + activity.targetWord + ' = /' + activity.targetPhonemes.join(' · ') + '/.';
+          equivalence.hidden = false;
+          equivalence.textContent = activity.targetWord + ' = /' + activity.targetPhonemes.join(' · ') + '/';
+        } else {
+          status.textContent = 'No guesses remain.';
+        }
       } else {
         status.textContent = 'Try again. Start guess ' + (currentRow + 1) + '.';
       }

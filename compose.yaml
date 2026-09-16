@@ -1,0 +1,48 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: phoneme_builder
+      POSTGRES_PASSWORD: phoneme_password
+      POSTGRES_USER: phoneme_user
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U phoneme_user -d phoneme_builder"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - phoneme_database:/var/lib/postgresql/data
+
+  migrate:
+    build:
+      context: .
+      target: builder
+    command: ["sh", "-c", "npm run db:deploy && npm run db:seed"]
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://phoneme_user:phoneme_password@database:5432/phoneme_builder?schema=public
+    restart: "no"
+
+  application:
+    build:
+      context: .
+      target: runner
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://phoneme_user:phoneme_password@database:5432/phoneme_builder?schema=public
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  phoneme_database:

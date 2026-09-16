@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ActivityType {
+  WORDLE
+  WORD_SEARCH
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  CUSTOM
+}
+
+model WordList {
+  id                     String                  @id @default(cuid())
+  name                   String                  @unique
+  description            String?
+  words                  Word[]
+  activityConfigurations ActivityConfiguration[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+
+  @@index([name])
+}
+
+model Word {
+  id                      String                      @id @default(cuid())
+  spelling                String
+  /// Each array item is one phoneme, so multi-character symbols such as tʃ remain atomic.
+  phonemes                String[]
+  hint                    String?
+  difficulty              DifficultyLevel             @default(BEGINNER)
+  wordListId              String
+  wordList                WordList                    @relation(fields: [wordListId], references: [id], onDelete: Cascade)
+  configurationSelections ActivityConfigurationWord[]
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
+
+  @@unique([wordListId, spelling])
+  @@index([wordListId])
+  @@index([difficulty])
+}
+
+model ActivityConfiguration {
+  id               String                      @id @default(cuid())
+  name             String
+  activityType     ActivityType
+  difficulty       DifficultyLevel             @default(BEGINNER)
+  /// Supported builder lengths are enforced by API validation and database constraints.
+  phonemeCount     Int
+  gridRows         Int?
+  gridColumns      Int?
+  maxAttempts      Int                         @default(6)
+  hintsEnabled     Boolean                     @default(true)
+  includeAnswerKey Boolean                     @default(true)
+  outputFilename   String?
+  notes            String?
+  wordListId       String
+  wordList         WordList                    @relation(fields: [wordListId], references: [id], onDelete: Cascade)
+  wordSelections   ActivityConfigurationWord[]
+  createdAt        DateTime                    @default(now())
+  updatedAt        DateTime                    @updatedAt
+
+  @@index([activityType])
+  @@index([wordListId])
+}
+
+model ActivityConfigurationWord {
+  configurationId String
+  wordId          String
+  position        Int
+  isTarget        Boolean               @default(false)
+  configuration   ActivityConfiguration @relation(fields: [configurationId], references: [id], onDelete: Cascade)
+  word            Word                  @relation(fields: [wordId], references: [id], onDelete: Restrict)
+
+  @@id([configurationId, wordId])
+  @@unique([configurationId, position])
+  @@index([wordId])
+}

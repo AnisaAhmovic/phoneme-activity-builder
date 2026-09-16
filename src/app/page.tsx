@@ -10,7 +10,7 @@ export default function HomePage() {
 
         <p className="hero__description">
           Build, preview and export Wordle-style and word-search activities
-          using phoneme symbols.
+          using phoneme words stored through a database-backed teacher library.
         </p>
 
         <div className="hero__actions">
@@ -20,6 +20,10 @@ export default function HomePage() {
 
           <Link className="button button--secondary" href="/word-search">
             Build a word search
+          </Link>
+
+          <Link className="button button--secondary" href="/library">
+            Manage stored words
           </Link>
         </div>
       </section>
@@ -49,6 +53,16 @@ export default function HomePage() {
               of words and grid dimensions.
             </p>
             <Link href="/word-search">Open Word Search Builder</Link>
+          </article>
+
+          <article className="activity-card">
+            <p className="activity-card__number">03</p>
+            <h3>Teacher Library</h3>
+            <p>
+              Add, retrieve, update and delete word lists and phoneme data
+              stored in PostgreSQL.
+            </p>
+            <Link href="/library">Open Teacher Library</Link>
           </article>
         </div>
       </section>

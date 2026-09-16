@@ -8,6 +8,7 @@ const navigationLinks = [
   { href: "/about", label: "About" },
   { href: "/wordle", label: "Wordle" },
   { href: "/word-search", label: "Word Search" },
+  { href: "/library", label: "Teacher Library" },
   { href: "/settings", label: "Settings" },
 ];
 

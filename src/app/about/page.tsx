@@ -16,14 +16,16 @@ export default function AboutPage() {
         <div className="about-copy">
           <h2 id="about-purpose-heading">Purpose</h2>
           <p>
-            Assessment 1 is frontend only. This stage focuses on interface
-            design, usability, accessibility, responsive behaviour and
-            downloadable browser-based activity outputs.
+            Assessment 2 extends the accessible frontend with a PostgreSQL
+            database, Prisma data model and validated Next.js route handlers.
+            Teachers can create, retrieve, update and delete their own word
+            lists, phoneme sequences and reusable activity configurations.
           </p>
           <p>
-            Database support and dynamic word-list management are outside the
-            current task and can be introduced in later development without
-            changing the core activity workflow.
+            Both builders read teacher-managed content through the backend API
+            and still generate self-contained HTML activities that work away
+            from the application server. The full application and database can
+            also be started together with Docker Compose.
           </p>
         </div>
 
@@ -46,18 +48,22 @@ export default function AboutPage() {
               <dt>Output</dt>
               <dd>Standalone playable HTML</dd>
             </div>
+            <div>
+              <dt>Backend</dt>
+              <dd>Next.js API, Prisma and PostgreSQL</dd>
+            </div>
           </dl>
         </aside>
       </section>
 
       <section aria-labelledby="about-video-heading" className="section">
         <div className="section-heading">
-          <p className="eyebrow">Website guide</p>
-          <h2 id="about-video-heading">How to use the builder</h2>
+          <p className="eyebrow">Original interface guide</p>
+          <h2 id="about-video-heading">How to use the activity builders</h2>
           <p>
-            The short guide demonstrates choosing an activity, configuring its
-            phonemes, previewing the result and generating the standalone HTML
-            activity.
+            This Assessment 1 guide demonstrates the retained activity
+            workflow. Assessment 2 adds database-backed content management and
+            saved configurations without removing these interactions.
           </p>
         </div>
 
@@ -163,6 +169,16 @@ export default function AboutPage() {
               as a standalone interactive browser activity.
             </p>
             <Link href="/word-search">Open Word Search Builder</Link>
+          </article>
+
+          <article className="activity-card">
+            <p className="activity-card__number">03</p>
+            <h3>Teacher Library</h3>
+            <p>
+              Enter and manage word lists, multi-character phonemes, hints and
+              difficulty metadata stored in PostgreSQL.
+            </p>
+            <Link href="/library">Open Teacher Library</Link>
           </article>
         </div>
       </section>

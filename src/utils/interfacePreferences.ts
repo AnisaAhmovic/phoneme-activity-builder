@@ -1,7 +1,7 @@
 export const INTERFACE_PREFERENCES_COOKIE =
   "phoneme_activity_builder_preferences";
 
-export const INTERFACE_THEMES = ["light", "dark"] as const;
+export const INTERFACE_THEMES = ["light", "dark", "system"] as const;
 export const INTERFACE_LAYOUTS = ["standard", "wide"] as const;
 
 export type InterfaceTheme = (typeof INTERFACE_THEMES)[number];
@@ -13,7 +13,7 @@ export interface InterfacePreferences {
 }
 
 export const DEFAULT_INTERFACE_PREFERENCES: InterfacePreferences = {
-  theme: "light",
+  theme: "system",
   layout: "standard",
 };
 

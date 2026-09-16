@@ -12,11 +12,20 @@ function serialiseForScript(value: unknown): string {
 
 export function generateWordSearchActivityHtml(
   puzzle: GeneratedWordSearch,
+  settings: {
+    hintsEnabled?: boolean;
+    includeAnswerKey?: boolean;
+  } = {},
 ): string {
+  const hintsEnabled = settings.hintsEnabled ?? true;
+  const includeAnswerKey = settings.includeAnswerKey ?? true;
+
   const payload = serialiseForScript({
     grid: puzzle.grid,
     entries: puzzle.entries,
-    hints: Object.fromEntries(PHONEME_HINT_ENTRIES),
+    hints: hintsEnabled ? Object.fromEntries(PHONEME_HINT_ENTRIES) : {},
+    hintsEnabled,
+    includeAnswerKey,
   });
 
   return `<!doctype html>
@@ -63,9 +72,9 @@ export function generateWordSearchActivityHtml(
       <div class="heading">
         <div>
           <h1 id="activity-title">Phoneme Word Search</h1>
-          <p class="intro">Find the phoneme words horizontally, vertically or diagonally. Drag from the first cell to the last, or use the keyboard by activating the first cell and then the last cell. Hover over or focus a cell to see its English letter equivalence.</p>
+          <p class="intro">Find the phoneme words horizontally, vertically or diagonally. Drag from the first cell to the last, or use the keyboard by activating the first cell and then the last cell.${hintsEnabled ? " Hover over or focus a cell to see its English letter equivalence." : ""}</p>
         </div>
-        <button class="control" id="answers-button" type="button">Show answers</button>
+        ${includeAnswerKey ? '<button class="control" id="answers-button" type="button">Show answers</button>' : ""}
       </div>
       <p class="status" id="status" role="status" aria-live="polite">Find the words in the grid.</p>
       <div class="grid" id="grid" role="grid" aria-label="Interactive phoneme word-search grid"></div>
@@ -217,9 +226,13 @@ export function generateWordSearchActivityHtml(
           button.className = 'cell';
           button.dataset.key = key(coordinate);
           button.textContent = phoneme;
-          button.title = '/' + phoneme + '/ — ' + hint;
           button.setAttribute('role', 'gridcell');
-          button.setAttribute('aria-label', 'Row ' + (rowIndex + 1) + ', column ' + (columnIndex + 1) + ': ' + phoneme + '. ' + hint);
+          if (activity.hintsEnabled) {
+            button.title = '/' + phoneme + '/ — ' + hint;
+            button.setAttribute('aria-label', 'Row ' + (rowIndex + 1) + ', column ' + (columnIndex + 1) + ': ' + phoneme + '. ' + hint);
+          } else {
+            button.setAttribute('aria-label', 'Row ' + (rowIndex + 1) + ', column ' + (columnIndex + 1) + ': ' + phoneme + '.');
+          }
 
           button.addEventListener('pointerdown', function (event) {
             if (event.pointerType === 'mouse' && event.button !== 0) return;
@@ -350,7 +363,7 @@ export function generateWordSearchActivityHtml(
     gridElement.addEventListener('pointerleave', function () {
       finishPointerSelection(false);
     });
-    answersButton.addEventListener('click', toggleAnswers);
+    if (answersButton) answersButton.addEventListener('click', toggleAnswers);
 
     buildGrid();
     buildWordList();

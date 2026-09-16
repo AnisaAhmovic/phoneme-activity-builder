@@ -16,8 +16,8 @@ export default function WordlePage() {
         <h1>Wordle Builder</h1>
 
         <p>
-          Select a target word and preview a Wordle-style phoneme activity.
-          Each phoneme occupies one grid cell.
+          Select a database-backed target word, configure the output and save
+          the activity for later. Each phoneme occupies one grid cell.
         </p>
       </div>
 
