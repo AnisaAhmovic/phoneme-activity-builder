@@ -302,19 +302,19 @@ The most important live evidence is:
 
 ## References (APA 7)
 
-Docker, Inc. (n.d.-a). *Compose file reference*. Retrieved September 14, 2026, from https://docs.docker.com/reference/compose-file/
+Docker, Inc. (n.d.-a). *Compose file reference*. Retrieved September 09, 2026, from https://docs.docker.com/reference/compose-file/
 
-Docker, Inc. (n.d.-b). *Multi-stage builds*. Retrieved September 14, 2026, from https://docs.docker.com/build/building/multi-stage/
+Docker, Inc. (n.d.-b). *Multi-stage builds*. Retrieved September 09, 2026, from https://docs.docker.com/build/building/multi-stage/
 
 International Phonetic Association. (1999). *Handbook of the International Phonetic Association: A guide to the use of the International Phonetic Alphabet*. Cambridge University Press. https://doi.org/10.1017/9780511807954
 
-PostgreSQL Global Development Group. (n.d.). *Arrays*. Retrieved September 14, 2026, from https://www.postgresql.org/docs/current/arrays.html
+PostgreSQL Global Development Group. (n.d.). *Arrays*. Retrieved September 09, 2026, from https://www.postgresql.org/docs/current/arrays.html
 
-Prisma Data, Inc. (n.d.-a). *Prisma schema overview*. Retrieved September 14, 2026, from https://www.prisma.io/docs/orm/prisma-schema/overview
+Prisma Data, Inc. (n.d.-a). *Prisma schema overview*. Retrieved September 11, 2026, from https://www.prisma.io/docs/orm/prisma-schema/overview
 
-Prisma Data, Inc. (n.d.-b). *Prisma Migrate*. Retrieved September 14, 2026, from https://www.prisma.io/docs/orm/prisma-migrate
+Prisma Data, Inc. (n.d.-b). *Prisma Migrate*. Retrieved September 11, 2026, from https://www.prisma.io/docs/orm/prisma-migrate
 
-Vercel. (n.d.). *Route handlers*. Next.js. Retrieved September 14, 2026, from https://nextjs.org/docs/app/getting-started/route-handlers
+Vercel. (n.d.). *Route handlers*. Next.js. Retrieved September 11, 2026, from https://nextjs.org/docs/app/getting-started/route-handlers
 
 World Wide Web Consortium. (2023, October 5). *Web Content Accessibility Guidelines (WCAG) 2.2*. https://www.w3.org/TR/WCAG22/
 
