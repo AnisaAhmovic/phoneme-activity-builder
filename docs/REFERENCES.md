@@ -1,8 +1,8 @@
 # References
 
-Apache Software Foundation. (n.d.-a). *Apache JMeter user's manual: Getting started*. Retrieved October 1, 2026, from https://jmeter.apache.org/usermanual/get-started.html
+Apache Software Foundation. (n.d.-a). *Apache JMeter user's manual: Generating dashboard report*. Retrieved October 1, 2026, from https://jmeter.apache.org/usermanual/generating-dashboard.html
 
-Apache Software Foundation. (n.d.-b). *Apache JMeter user's manual: Generating dashboard report*. Retrieved October 1, 2026, from https://jmeter.apache.org/usermanual/generating-dashboard.html
+Apache Software Foundation. (n.d.-b). *Apache JMeter user's manual: Getting started*. Retrieved October 1, 2026, from https://jmeter.apache.org/usermanual/get-started.html
 
 Google. (n.d.). *Lighthouse accessibility score*. Chrome for Developers. Retrieved October 1, 2026, from https://developer.chrome.com/docs/lighthouse/accessibility/scoring
 

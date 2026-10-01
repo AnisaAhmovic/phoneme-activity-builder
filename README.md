@@ -42,10 +42,10 @@ npm run db:deploy
 npm run db:seed
 npm run db:simulate
 npm run build
-npm start
+ALLOW_TEST_TRAFFIC=1 npm start
 ```
 
-In another terminal, run:
+The last command starts the disposable verification instance with labelled test traffic enabled. For ordinary use, run `npm start` without that flag. In another terminal, run:
 
 ```bash
 npm run check
@@ -80,14 +80,17 @@ The Assessment 1 feedback is also addressed by adding a System theme and replaci
 
 ```mermaid
 flowchart TD
-    UI["Next.js teacher interface"] --> API["Validated route-handler API"]
-    API --> REPO["Repository and Prisma ORM"]
-    REPO --> DB[("PostgreSQL")]
-    DB --> BUILDERS["Wordle and Word Search builders"]
-    BUILDERS --> HTML["Standalone HTML activity"]
+    UI["Teacher interface"] --> API["Validated route handlers"]
+    API --> CRUD["Content repository"]
+    API --> GEN["Generation service"]
+    API --> REPORT["Reporting service"]
+    CRUD --> DB[("PostgreSQL")]
+    GEN --> DB
+    REPORT --> DB
+    GEN --> HTML["Saved standalone HTML"]
 ```
 
-The interface and API are kept in one Next.js project. The browser never connects to PostgreSQL directly: client components call route handlers, route handlers validate requests, and the server-side repository is the only layer that uses Prisma.
+The interface and API are kept in one Next.js project. Client components call route handlers, which validate requests and invoke server-only repository, generation and reporting services. Those services use Prisma to access PostgreSQL. The browser never connects to PostgreSQL directly.
 
 ## Features
 
@@ -151,6 +154,8 @@ The database-backed builder supports:
 | `/word-search` | Database-backed Word Search builder and saved configurations |
 | `/settings` | Theme and layout preferences |
 | `/health` | Application and database health check |
+| `/dashboard` | Filtered usage, page time, health, alerts and CSV |
+| `/activities/:id` | Persisted standalone generated output |
 
 ## Data model
 
@@ -160,6 +165,8 @@ The database-backed builder supports:
 | `Word` | Written spelling, `String[]` phoneme sequence, optional hint, difficulty, parent list and timestamps |
 | `ActivityConfiguration` | Activity type, difficulty, phoneme length, grid dimensions, attempt limit, hint and answer settings, filename, notes and parent list |
 | `ActivityConfigurationWord` | Ordered many-to-many selection between configurations and words, including the Wordle target flag |
+| `GenerationEvent` | Unique request ID, type, outcome, traffic source, duration, settings snapshot and saved HTML |
+| `PageVisit` | Anonymous visit ID, allowlisted path, cumulative foreground milliseconds and traffic source |
 
 The database migration enforces three-to-five phoneme sequences, valid activity phoneme counts, one-to-ten attempts and activity-appropriate grid dimensions. The repository additionally verifies that every selected word belongs to the chosen list and matches the configuration's phoneme count.
 
@@ -184,6 +191,10 @@ Successful JSON responses use `{ "data": ... }`. Errors use a consistent `error`
 | `GET /api/activity-configurations/:id` | Retrieve a configuration with ordered words |
 | `PATCH /api/activity-configurations/:id` | Partially update a configuration |
 | `DELETE /api/activity-configurations/:id` | Delete a configuration |
+| `POST /api/generations` | Validate, generate and persist an output or failed attempt |
+| `POST /api/page-visits` | Store the highest cumulative foreground time for a visit |
+| `GET /api/reports` | Retrieve filtered aggregate metrics and recent events |
+| `GET /api/reports/export` | Export filtered generation events as CSV |
 
 Example validation error:
 
@@ -283,7 +294,7 @@ Run the complete local quality gate:
 npm run check
 ```
 
-This runs ESLint, TypeScript, eight unit tests and the production build.
+This runs ESLint, TypeScript, twelve unit tests and the production build.
 
 With the application and database running, verify HTTP 200 health plus end-to-end list, word and saved-activity CRUD:
 
@@ -340,6 +351,8 @@ phoneme-activity-builder/
 
 ## References (APA 7)
 
+The Assessment 3 reference list is in [docs/REFERENCES.md](docs/REFERENCES.md). The sources below are retained from Assessment 2.
+
 Docker, Inc. (n.d.-a). *Compose file reference*. Retrieved September 09, 2026, from https://docs.docker.com/reference/compose-file/
 
 Docker, Inc. (n.d.-b). *Multi-stage builds*. Retrieved September 09, 2026, from https://docs.docker.com/build/building/multi-stage/
@@ -358,4 +371,4 @@ World Wide Web Consortium. (2023, October 5). *Web Content Accessibility Guideli
 
 ## Repository workflow
 
-Assessment 2 work is developed on a feature branch and reviewed through a pull request. The stable `main` branch is not changed directly. Generated clients, dependencies, builds and real environment files are excluded from version control.
+Assessment 3 work is developed on `feature/assessment-3-reporting` and reviewed through [pull request #14](https://github.com/AnisaAhmovic/phoneme-activity-builder/pull/14). The stable `main` branch is not changed directly. Generated clients, dependencies, builds and real environment files are excluded from version control.
