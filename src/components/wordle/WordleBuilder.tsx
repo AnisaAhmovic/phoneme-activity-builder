@@ -13,21 +13,13 @@ import {
 } from "@/lib/phonemeData";
 import type { PhonemeCount } from "@/types/phoneme";
 import type { StoredActivityConfiguration } from "@/types/backend";
-import { downloadHtmlFile } from "@/utils/downloadHtmlFile";
-import { generateWordleActivityHtml } from "@/utils/generateWordleActivityHtml";
+import { generateAndDownload } from "@/lib/generationApi";
 import { normalisePhoneme } from "@/utils/normalisePhoneme";
 
 const PHONEME_COUNTS: readonly PhonemeCount[] = [3, 4, 5];
 const DEFAULT_PHONEME_COUNT: PhonemeCount = 3;
 
-function htmlFilename(value: string, fallback: string): string {
-  const trimmed = value.trim();
-  const filename = trimmed || fallback;
 
-  return filename.toLowerCase().endsWith(".html")
-    ? filename
-    : `${filename}.html`;
-}
 
 export default function WordleBuilder() {
   const { wordLists, isLoading, errorMessage } = useWordLists();
@@ -42,6 +34,9 @@ export default function WordleBuilder() {
   const [includeAnswerKey, setIncludeAnswerKey] = useState(true);
   const [outputFilename, setOutputFilename] = useState("");
   const [downloadStatus, setDownloadStatus] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState("");
+  const [outputUrl, setOutputUrl] = useState("");
 
   const selectedList = useMemo(
     () => wordLists.find((wordList) => wordList.id === wordListId),
@@ -159,25 +154,20 @@ export default function WordleBuilder() {
     setPreviewGuess([]);
   }
 
-  function handleGenerateHtml(): void {
-    if (!selectedWord) {
-      return;
-    }
-
-    const filename = htmlFilename(
-      outputFilename,
-      `phoneme-wordle-${selectedWord.word}.html`,
-    );
-
-    downloadHtmlFile(
-      filename,
-      generateWordleActivityHtml(selectedWord, {
-        maxAttempts,
-        hintsEnabled,
-        includeAnswerKey,
-      }),
-    );
-    setDownloadStatus(`${filename} downloaded and ready to open in a browser.`);
+  async function handleGenerateHtml(): Promise<void> {
+    if (!configurationDraft || isGenerating) return;
+    setIsGenerating(true);
+    setGenerationError("");
+    setOutputUrl("");
+    setDownloadStatus("Generating and saving the output...");
+    try {
+      const result = await generateAndDownload(configurationDraft, crypto.randomUUID());
+      setDownloadStatus(`${result.filename} saved and downloaded.`);
+      setOutputUrl(result.outputUrl);
+    } catch (error) {
+      setDownloadStatus("");
+      setGenerationError(error instanceof Error ? error.message : "Generation failed. Try again.");
+    } finally { setIsGenerating(false); }
   }
 
   function loadConfiguration(
@@ -350,16 +340,19 @@ export default function WordleBuilder() {
 
         <button
           className="button button--primary activity-generate-button"
-          disabled={!selectedWord}
-          onClick={handleGenerateHtml}
+          disabled={!selectedWord || isGenerating}
+          onClick={() => void handleGenerateHtml()}
           type="button"
         >
-          Generate HTML
+          {isGenerating ? "Generating..." : "Generate HTML"}
         </button>
 
         <p aria-live="polite" className="activity-download-status">
           {downloadStatus}
         </p>
+
+        {generationError ? <p role="alert" className="form-error">{generationError}</p> : null}
+        {outputUrl ? <a href={outputUrl} target="_blank" rel="noreferrer">Open saved output in a new tab</a> : null}
 
         <ConfigurationManager
           activityType="WORDLE"

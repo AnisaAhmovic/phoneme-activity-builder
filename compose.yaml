@@ -17,7 +17,7 @@ services:
     build:
       context: .
       target: builder
-    command: ["sh", "-c", "npm run db:deploy && npm run db:seed"]
+    command: ["sh", "-c", "npm run db:deploy && npm run db:seed && npm run db:simulate"]
     depends_on:
       database:
         condition: service_healthy

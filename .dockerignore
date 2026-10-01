@@ -9,3 +9,7 @@ coverage
 *.zip
 *.mp4
 !public/*.mp4
+
+evidence
+test-results
+playwright-report

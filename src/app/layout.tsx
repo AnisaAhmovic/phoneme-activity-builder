@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import PageVisitTracker from "@/components/activities/PageVisitTracker";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import { ThemeProvider } from "@/components/settings/ThemeProvider";
@@ -58,6 +59,7 @@ export default async function RootLayout({
         <ThemeProvider initialTheme={preferences.theme}>
           <div className="site-shell">
             <Header />
+            <PageVisitTracker />
 
             <div className="site-content">{children}</div>
 

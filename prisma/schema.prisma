@@ -12,6 +12,48 @@ enum ActivityType {
   WORD_SEARCH
 }
 
+enum TrafficSource {
+  LIVE
+  SIMULATED
+  LOAD_TEST
+}
+
+enum GenerationStatus {
+  SUCCESS
+  FAILED
+}
+
+/// Append-only outcome log. Snapshots and HTML survive later source-list edits/deletion.
+model GenerationEvent {
+  id           String           @id @default(cuid())
+  requestId    String           @unique
+  activityType ActivityType?
+  status       GenerationStatus
+  source       TrafficSource    @default(LIVE)
+  filename     String?
+  errorCode    String?
+  message      String?
+  durationMs   Int
+  snapshot     Json?
+  html         String?
+  createdAt    DateTime         @default(now())
+
+  @@index([source, createdAt])
+  @@index([status, activityType, createdAt])
+}
+
+/// One anonymous route visit, updated cumulatively, never a student identity.
+model PageVisit {
+  id         String        @id
+  path       String
+  activeMs   Int           @default(0)
+  source     TrafficSource @default(LIVE)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([source, createdAt])
+}
+
 enum DifficultyLevel {
   BEGINNER
   INTERMEDIATE

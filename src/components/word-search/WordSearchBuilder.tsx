@@ -16,13 +16,12 @@ import {
 } from "@/lib/phonemeData";
 import type { StoredActivityConfiguration, StoredWordList } from "@/types/backend";
 import type { PhonemeCount, PhonemeWord } from "@/types/phoneme";
-import { downloadHtmlFile } from "@/utils/downloadHtmlFile";
+import { generateAndDownload } from "@/lib/generationApi";
 import {
   generateWordSearch,
   type GeneratedWordSearch,
   type GridCoordinate,
 } from "@/utils/generateWordSearch";
-import { generateWordSearchActivityHtml } from "@/utils/generateWordSearchActivityHtml";
 
 const PHONEME_COUNTS: readonly PhonemeCount[] = [3, 4, 5];
 const DEFAULT_PHONEME_COUNT: PhonemeCount = 3;
@@ -124,13 +123,7 @@ function buildPuzzle(
   return generateWordSearch(words, rows, columns, seed);
 }
 
-function htmlFilename(value: string): string {
-  const filename = value.trim() || "phoneme-word-search.html";
 
-  return filename.toLowerCase().endsWith(".html")
-    ? filename
-    : `${filename}.html`;
-}
 
 export default function WordSearchBuilder() {
   const { wordLists, isLoading, errorMessage } = useWordLists();
@@ -155,6 +148,9 @@ export default function WordSearchBuilder() {
   const suppressNextClick = useRef(false);
   const [selectedPath, setSelectedPath] = useState<GridCoordinate[]>([]);
   const [downloadStatus, setDownloadStatus] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState("");
+  const [outputUrl, setOutputUrl] = useState("");
   const [foundSelections, setFoundSelections] = useState<
     Record<string, readonly GridCoordinate[]>
   >({});
@@ -316,17 +312,20 @@ export default function WordSearchBuilder() {
     resetInteractionState();
   }
 
-  function handleGenerateHtml(): void {
-    const filename = htmlFilename(outputFilename);
-
-    downloadHtmlFile(
-      filename,
-      generateWordSearchActivityHtml(puzzle, {
-        hintsEnabled,
-        includeAnswerKey,
-      }),
-    );
-    setDownloadStatus(`${filename} downloaded and ready to open in a browser.`);
+  async function handleGenerateHtml(): Promise<void> {
+    if (!configurationDraft || isGenerating) return;
+    setIsGenerating(true);
+    setGenerationError("");
+    setOutputUrl("");
+    setDownloadStatus("Generating and saving the output...");
+    try {
+      const result = await generateAndDownload(configurationDraft, crypto.randomUUID());
+      setDownloadStatus(`${result.filename} saved and downloaded.`);
+      setOutputUrl(result.outputUrl);
+    } catch (error) {
+      setDownloadStatus("");
+      setGenerationError(error instanceof Error ? error.message : "Generation failed. Try again.");
+    } finally { setIsGenerating(false); }
   }
 
   function loadConfiguration(
@@ -655,16 +654,19 @@ export default function WordSearchBuilder() {
         </button>
         <button
           className="button button--primary activity-generate-button"
-          disabled={puzzle.entries.length === 0}
-          onClick={handleGenerateHtml}
+          disabled={!configurationDraft || isGenerating}
+          onClick={() => void handleGenerateHtml()}
           type="button"
         >
-          Generate HTML
+          {isGenerating ? "Generating..." : "Generate HTML"}
         </button>
 
         <p aria-live="polite" className="activity-download-status">
           {downloadStatus}
         </p>
+
+        {generationError ? <p role="alert" className="form-error">{generationError}</p> : null}
+        {outputUrl ? <a href={outputUrl} target="_blank" rel="noreferrer">Open saved output in a new tab</a> : null}
 
         <ConfigurationManager
           activityType="WORD_SEARCH"

@@ -2,7 +2,9 @@
 
 An accessible full-stack application for creating, storing and exporting phoneme-based Wordle and Word Search activities for Speech Pathology teaching and learning.
 
-Assessment 2 extends the original Next.js frontend with a PostgreSQL database, Prisma ORM, validated route-handler APIs, teacher-managed phoneme content, saved activity configurations, health monitoring and Docker deployment. Generated activities remain single, standalone HTML files that work without the Next.js server.
+Assessment 3 extends the existing Next.js, Prisma and PostgreSQL project with an operational dashboard, persistent generation history, anonymous page-time metrics, labelled simulated input, CSV reporting, alerts and automated test evidence. Generated activities remain standalone HTML files that work offline.
+
+The original frontend and Assessment 2 backend are retained. The project history begins with the existing create-next-app scaffold; this assessment extends that project rather than creating a second application.
 
 ## Author
 
@@ -12,7 +14,57 @@ Student number: **22318777**
 
 Repository: <https://github.com/AnisaAhmovic/phoneme-activity-builder>
 
-## Assessment 2 coverage
+## Assessment 3 additions
+
+- `/dashboard`: filter usage by 7 days, 30 days or all time, and by live, simulated or load-test source. Inventory counts show the current database; period filters apply to generation and page-visit records.
+- `POST /api/generations`: validates the activity and selected database words, generates HTML on the server, persists the outcome and immutable output snapshot, then returns the download. A unique request ID prevents duplicate counts on retries.
+- `/activities/:id`: retrieve a previously generated HTML output, even after its original word list changes or is deleted.
+- `POST /api/page-visits`: validated, anonymous cumulative foreground time. The server keeps the highest value received for each visit. No student names, IP addresses or learner results are collected by this feature.
+- `GET /api/reports` and `/api/reports/export`: database aggregates and formula-safe CSV. Exports are limited to 10,000 records and reject larger selections rather than silently truncating them.
+- Alerts show failed attempts, success rates below 90% (after at least five attempts), empty word lists and unavailable monitoring.
+
+A **saved configuration** is a reusable set of settings. A **successful generation** is a server-generated, persisted HTML output. Preview refreshes are not generation events. Average time is visible-tab duration per builder-site visit, capped at 30 minutes. Closed browsers or network failures can undercount this measure. Offline learner interaction is not monitored.
+
+### Run and validate Assessment 3
+
+```bash
+docker compose up --build
+```
+
+Open <http://localhost:3000/dashboard>. Compose applies all migrations and seeds the corpus, sample configurations and labelled simulation records. The simulation contains 28 attempts (24 successful and 4 failed) and 12 visits averaging 57.5 seconds. These are synthetic examples, not measured test results.
+
+For local PostgreSQL development:
+
+```bash
+cp .env.example .env
+npm ci
+npm run db:deploy
+npm run db:seed
+npm run db:simulate
+npm run build
+npm start
+```
+
+In another terminal, run:
+
+```bash
+npm run check
+npm run test:api
+npx playwright install chromium
+npm run test:e2e
+npm run test:accessibility
+npm run test:load
+```
+
+`test:load` requires Apache JMeter 5.6.3 and Java. Set `JMETER_BIN` if it is not on PATH. Use a disposable local test database and start the application with `ALLOW_TEST_TRAFFIC=1` to label the tests' `x-traffic-source: LOAD_TEST` requests. This flag is off by default and should remain off for ordinary classroom use. The unauthenticated app is intended for local assessment use; public multi-user deployment needs access control and a retention policy.
+
+Default JMeter stages are 1, 10, 25, 50 and 100 concurrent users, five workflows per user and a five-second ramp. Set `LOAD_LEVELS` and `LOAD_LOOPS` to change the plan. These are equivalent staged levels allowed by the brief, not a claim to have tested 10,000 users. Each workflow reads the builder, retrieves stored words, creates a configuration, generates and views an output, reads reporting and deletes its temporary configuration. Load-test generation records are retained for reporting.
+
+GitHub Actions runs the quality checks, actual PostgreSQL 17 migrations, Playwright, Lighthouse, JMeter, a fresh-process persistence check and a Docker build. It uploads raw evidence as `assessment3-evidence`. A workflow definition is not a passing test result; consult the run and its artefacts.
+
+Evidence is written under `evidence/`, excluded from git. `npm run demo:failure` intentionally submits invalid generation data to demonstrate the failed-attempt alert. It does not alter word lists. The video script and traceability notes are supplied in `docs/`.
+
+## Retained Assessment 2 coverage
 
 | Criterion | Implementation |
 | --- | --- |

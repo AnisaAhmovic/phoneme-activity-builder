@@ -14,6 +14,7 @@ export default function HomePage() {
         </p>
 
         <div className="hero__actions">
+          <Link className="button button--primary" href="/dashboard">View dashboard</Link>
           <Link className="button button--primary" href="/wordle">
             Build a Wordle activity
           </Link>
