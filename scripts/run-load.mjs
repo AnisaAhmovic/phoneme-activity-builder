@@ -20,6 +20,22 @@ if (
   throw new Error("Invalid staged load configuration.");
 const directory = `evidence/jmeter-${new Date().toISOString().replaceAll(":", "-")}`;
 await mkdir(directory, { recursive: true });
+function csvRows(text) {
+  const rows = [];
+  let row = [], value = "", quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '"') {
+      if (quoted && text[i + 1] === '"') { value += '"'; i++; }
+      else quoted = !quoted;
+    } else if (char === "," && !quoted) { row.push(value); value = ""; }
+    else if (char === "\n" && !quoted) {
+      row.push(value.replace(/\r$/u, "")); rows.push(row); row = []; value = "";
+    } else value += char;
+  }
+  if (value || row.length) { row.push(value); rows.push(row); }
+  return rows;
+}
 const summary = [];
 for (const users of levels) {
   const file = `${directory}/${users}-users.jtl`;
@@ -62,10 +78,17 @@ for (const users of levels) {
     ),
   );
   const total = stats.Total;
+  const sampleRows = csvRows(await readFile(file, "utf8"));
+  const threadColumn = sampleRows[0].indexOf("grpThreads");
+  const peakActiveThreads = sampleRows.slice(1).reduce(
+    (peak, row) => Math.max(peak, Number(row[threadColumn])), 0,
+  );
+  if (peakActiveThreads !== users) throw new Error(`Requested ${users} users, observed peak ${peakActiveThreads}. Inspect the synchronisation timer.`);
   if (!total?.sampleCount) throw new Error("No JMeter samples were produced.");
   summary.push({
     users,
     loops,
+    peakActiveThreads,
     requests: total.sampleCount,
     errors: total.errorCount,
     errorPercent: total.errorPct,
@@ -92,6 +115,7 @@ await writeFile(
       levels,
       loops,
       rampSeconds: 5,
+      synchronisedFirstRequest: true,
       scope:
         "HTTP builder/configuration/generation/output workflow; no browser JavaScript or offline learner execution",
       results: summary,

@@ -15,6 +15,21 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
+        <OnceOnlyController guiclass="OnceOnlyControllerGui" testclass="OnceOnlyController" testname="Synchronise the first request only" enabled="true" />
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Wait for all stage users" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">SampleResult.setIgnore()</stringProp>
+          </JSR223Sampler>
+          <hashTree>
+            <SyncTimer guiclass="TestBeanGUI" testclass="SyncTimer" testname="Release all users together" enabled="true">
+              <intProp name="groupSize">0</intProp>
+              <longProp name="timeoutInMs">30000</longProp>
+            </SyncTimer>
+            <hashTree />
+          </hashTree>
+        </hashTree>
         <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="JSON and test-traffic headers" enabled="true">
           <collectionProp name="HeaderManager.headers">
             <elementProp name="" elementType="Header">
