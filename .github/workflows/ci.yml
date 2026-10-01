@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -56,6 +59,8 @@ jobs:
           npm run test:e2e
       - name: Lighthouse accessibility checks
         run: npm run test:accessibility
+      - name: Capture application screenshots
+        run: node scripts/capture-evidence.mjs
       - name: Install Apache JMeter
         run: |
           curl --fail --location https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz -o /tmp/jmeter.tgz

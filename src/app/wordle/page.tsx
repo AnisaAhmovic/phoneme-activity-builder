@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function WordlePage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <div className="page-heading">
         <p className="eyebrow">Activity builder</p>
         <h1>Wordle Builder</h1>

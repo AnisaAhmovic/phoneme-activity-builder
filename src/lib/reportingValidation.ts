@@ -8,7 +8,15 @@ export const generationRequestSchema = z.object({
 
 export const visitSchema = z.object({
   id: z.uuid(),
-  path: z.enum(["/", "/wordle", "/word-search", "/library", "/dashboard", "/settings", "/about"]),
+  path: z.enum([
+    "/",
+    "/wordle",
+    "/word-search",
+    "/library",
+    "/dashboard",
+    "/settings",
+    "/about",
+  ]),
   activeMs: z.number().int().min(0).max(1_800_000),
 });
 

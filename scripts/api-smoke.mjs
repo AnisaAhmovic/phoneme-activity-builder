@@ -82,7 +82,10 @@ try {
     `/api/activity-configurations/${activityId}`,
   );
   assert.equal(retrievedActivity.body.data.maxAttempts, 4);
-  assert.equal(retrievedActivity.body.data.wordSelections[0].word.spelling, "chip");
+  assert.equal(
+    retrievedActivity.body.data.wordSelections[0].word.spelling,
+    "chip",
+  );
 
   const updatedActivity = await request(
     `/api/activity-configurations/${activityId}`,

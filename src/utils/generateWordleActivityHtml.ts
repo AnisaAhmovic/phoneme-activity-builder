@@ -31,7 +31,7 @@ export function generateWordleActivityHtml(
   const payload = serialiseForScript({
     targetWord: word.word,
     targetPhonemes: word.phonemes,
-    keyboard: NORMALISED_PHONEME_KEYBOARD,
+    keyboard: [...new Set([...NORMALISED_PHONEME_KEYBOARD, ...word.phonemes])],
     hints: hintsEnabled ? Object.fromEntries(PHONEME_HINT_ENTRIES) : {},
     hintsEnabled,
     includeAnswerKey,

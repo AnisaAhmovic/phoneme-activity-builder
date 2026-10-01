@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function LibraryPage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <div className="page-heading">
         <p className="eyebrow">Backend and database</p>
         <h1>Teacher Library</h1>

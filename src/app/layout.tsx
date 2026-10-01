@@ -58,6 +58,7 @@ export default async function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider initialTheme={preferences.theme}>
           <div className="site-shell">
+            <a className="skip-link" href="#main-content">Skip to main content</a>
             <Header />
             <PageVisitTracker />
 

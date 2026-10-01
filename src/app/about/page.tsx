@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function AboutPage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <div className="page-heading">
         <p className="eyebrow">About the project</p>
         <h1>About</h1>

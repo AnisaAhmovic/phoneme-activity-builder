@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function SettingsPage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <div className="page-heading">
         <p className="eyebrow">Preferences</p>
         <h1>Settings</h1>
