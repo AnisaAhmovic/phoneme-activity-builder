@@ -43,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local validation artefacts
+evidence/
+test-results/
+playwright-report/

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function AboutPage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <div className="page-heading">
         <p className="eyebrow">About the project</p>
         <h1>About</h1>
@@ -16,8 +16,8 @@ export default function AboutPage() {
         <div className="about-copy">
           <h2 id="about-purpose-heading">Purpose</h2>
           <p>
-            Assessment 2 extends the accessible frontend with a PostgreSQL
-            database, Prisma data model and validated Next.js route handlers.
+            Assessment 3 adds database-backed reporting, generation history,
+            usage monitoring and alerts to the existing PostgreSQL backend.
             Teachers can create, retrieve, update and delete their own word
             lists, phoneme sequences and reusable activity configurations.
           </p>

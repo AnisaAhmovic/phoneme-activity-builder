@@ -787,3 +787,9 @@ html[data-theme="dark"] .button-link--danger {
     font-size: clamp(0.72rem, 3.1vw, 1rem);
   }
 }
+
+/* Added after audit review to shorten keyboard navigation on long builder pages. */
+.skip-link { position: fixed; left: 1rem; top: -6rem; z-index: 100; background: #17445d; color: #fff; padding: .8rem 1rem; border-radius: .4rem; }
+.skip-link:focus { top: 1rem; }
+#main-content { scroll-margin-top: 90px; }
+#main-content:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }

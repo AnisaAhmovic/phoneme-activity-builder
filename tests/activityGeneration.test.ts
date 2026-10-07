@@ -45,3 +45,10 @@ test("Word Search export embeds a generated puzzle from teacher words", () => {
   assert.match(html, /"includeAnswerKey":false/u);
   assert.doesNotMatch(html, /id="answers-button"/u);
 });
+
+test("teacher-entered phonemes remain playable in the exported Wordle keyboard", () => {
+  const html = generateWordleActivityHtml({ id: "custom", word: "custom", phonemes: ["x", "y", "z"] });
+  const payload = JSON.parse(html.match(/const activity = (.*);/u)![1]);
+  assert.ok(payload.keyboard.includes("x"));
+  assert.ok(payload.keyboard.includes("y"));
+});

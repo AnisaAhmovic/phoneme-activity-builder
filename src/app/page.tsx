@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <section className="hero">
         <p className="eyebrow">Educational activity builder</p>
 
@@ -14,6 +14,7 @@ export default function HomePage() {
         </p>
 
         <div className="hero__actions">
+          <Link className="button button--primary" href="/dashboard">View dashboard</Link>
           <Link className="button button--primary" href="/wordle">
             Build a Wordle activity
           </Link>
